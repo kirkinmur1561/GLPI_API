@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32630.194
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GLPIDotNet_API", "GLPIDotNet_API\GLPIDotNet_API.csproj", "{32F46628-2B30-44B6-9A47-3E548082B022}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{32F46628-2B30-44B6-9A47-3E548082B022}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32F46628-2B30-44B6-9A47-3E548082B022}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32F46628-2B30-44B6-9A47-3E548082B022}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{32F46628-2B30-44B6-9A47-3E548082B022}.Debug|x64.Build.0 = Debug|Any CPU
+		{32F46628-2B30-44B6-9A47-3E548082B022}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32F46628-2B30-44B6-9A47-3E548082B022}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32F46628-2B30-44B6-9A47-3E548082B022}.Release|x64.ActiveCfg = Release|Any CPU
+		{32F46628-2B30-44B6-9A47-3E548082B022}.Release|x64.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7729F5EC-FF49-4D62-8FF1-93E1D946556F}
+	EndGlobalSection
+EndGlobal
