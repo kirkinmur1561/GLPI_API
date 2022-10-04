@@ -5,10 +5,8 @@ using System.Collections.Generic;
 
 namespace GLPIDotNet_API.Dashboard.Helpdesk.LinkTicket
 {
-    public class ITILSolution
-    {
-        [JsonProperty("id")]
-        public long Id { get; set; }
+    public class ITILSolution:CommonLinkTicket
+    {       
         [JsonProperty("itemtype")]
         public string ItemType { get; set; }
         [JsonProperty("items_id")]
@@ -24,9 +22,7 @@ namespace GLPIDotNet_API.Dashboard.Helpdesk.LinkTicket
         [JsonProperty("date_mod")]
         public DateTime? DateMod { get; set; }
         [JsonProperty("date_approval")]
-        public DateTime? DateApproval { get; set; }
-        [JsonProperty("users_id")]
-        public long IdUser { get; set; }
+        public DateTime? DateApproval { get; set; }       
         [JsonProperty("user_name")]
         public string NameUser { get; set; }
         [JsonProperty("users_id_editor")]
@@ -38,8 +34,6 @@ namespace GLPIDotNet_API.Dashboard.Helpdesk.LinkTicket
         [JsonProperty("status")]
         public int? Status { get; set; }
         [JsonProperty("itilfollowups_id")]
-        public long? IdItilFollowUp { get; set; }
-        [JsonProperty("links")]
-        public List<Link> Links { get; set; }
+        public long? IdItilFollowUp { get; set; }       
     }
 }

@@ -4,16 +4,10 @@ using GLPIDotNet_API.Base;
 using Newtonsoft.Json;
 namespace GLPIDotNet_API.Dashboard.Helpdesk.LinkTicket
 {
-    public class TicketValidation
-    {
-        [JsonProperty("id")]
-        public long Id { get; set; }
+    public class TicketValidation:CommonLinkTicket
+    {       
         [JsonProperty("entities_id")]
-        public long IdEntity { get; set; }
-        [JsonProperty("users_id")]
-        public long IdUser { get; set; }
-        [JsonProperty("tickets_id")]
-        public long IdTicket { get; set; }
+        public long IdEntity { get; set; }       
         [JsonProperty("users_id_validate")]
         public long IdUserValidate{ get; set; }
         [JsonProperty("comment_submission")]
@@ -27,8 +21,6 @@ namespace GLPIDotNet_API.Dashboard.Helpdesk.LinkTicket
         [JsonProperty("validation_date")]
         public DateTime? DateValidation { get; set; }
         [JsonProperty("timeline_position")]
-        public int? TimelinePosition { get; set; }
-        [JsonProperty("links")]
-        public List<Link> Links { get; set; }
+        public int? TimelinePosition { get; set; }        
     }
 }

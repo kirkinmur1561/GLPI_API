@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using GLPIDotNet_API.Dashboard.Common.Exception;
 
 namespace GLPIDotNet_API.Dashboard.Common
 {
@@ -74,12 +75,17 @@ namespace GLPIDotNet_API.Dashboard.Common
         /// </summary>
         /// <param name="glpi">Объект подключения к GLPI</param>
         /// <returns>Если true  есть ошибка;False  иначе </returns>
-        protected internal static bool Check(Glpi glpi) =>
-            (glpi == null ||
-            glpi.Client == null ||
-            string.IsNullOrEmpty(glpi.AppToken) ||
-            glpi.Init == null ||
-            string.IsNullOrEmpty(glpi.Init.SessionToken));
+        protected internal static bool Check(Glpi glpi)
+        {
+            bool is_check = glpi?.Client == null ||
+                            string.IsNullOrEmpty(glpi.AppToken) ||
+                            glpi.Init == null ||
+                            string.IsNullOrEmpty(glpi.Init.SessionToken);
+            if (!is_check) return false;
+            
+            throw new ExceptionCheck(glpi);
+        }
+            
 
         /// <summary>
         /// Получить объект D в формате JSON
@@ -90,11 +96,12 @@ namespace GLPIDotNet_API.Dashboard.Common
         /// <exception cref="Exception"></exception>
         public static async Task<string> GetJson(Glpi glpi, Parameter parameter,CancellationToken cancel = default)
         {
-            if (Check(glpi) || parameter == null) throw new Exception("Not check the check or the parameter equal null");
+            if (Check(glpi)) throw new ExceptionCheck(glpi);
+            if (parameter == null) throw new System.Exception("Error parameter.");
 
             HttpResponseMessage response = null;
             Request request = new Request
-            (() => glpi.Client.GetAsync($"{typeof(TD).Name}{parameter}"),
+            (() => glpi.Client.GetAsync($"{typeof(TD).Name}{parameter}", cancel),
             w => response = w);
 
             glpi.QueueRequest.Enqueue(request);
@@ -104,18 +111,18 @@ namespace GLPIDotNet_API.Dashboard.Common
                 if (cancel.IsCancellationRequested)
                 {
                     cancel.ThrowIfCancellationRequested();
-                }
-                
+                }                
             }
+            
             if (response.IsSuccessStatusCode)
                 return await Task.FromResult(await response.Content.ReadAsStringAsync(cancel));
-            else throw new Exception($"status code:{response.StatusCode} content:{await response.Content?.ReadAsStringAsync(cancel)}");
-
+            
+            throw new System.Exception($"status code:{response.StatusCode} content:{await response.Content?.ReadAsStringAsync(cancel)}");
         }
 
 
         /// <summary>
-        /// Получить объект типа D
+        /// Получить объект типа TD
         /// </summary>
         /// <param name="glpi">Основное подключение к glpi</param>
         /// <param name="parameter">Параметры поиска</param>
@@ -124,20 +131,19 @@ namespace GLPIDotNet_API.Dashboard.Common
         /// <exception cref="Exception"></exception>
         public static async Task<TD> GetAsync(Glpi glpi, Parameter parameter,CancellationToken cancel = default)
         {
-            if (Check(glpi) | parameter.id == null | parameter.id < 0) return null;
-            string data;
-            data = await GetJson(glpi, parameter, cancel);
-
-            if (data == "*NULL*") throw new Exception("Json value null");
-
+            if (Check(glpi)) throw new ExceptionCheck(glpi);
+            if (parameter?.id is null or < 0) throw new System.Exception("Error parameter.");
+            string data = default;
             try
             {
-                return JsonConvert.DeserializeObject<TD>(data);
+                data = await GetJson(glpi, parameter, cancel);
             }
-            catch(JsonException je)
+            catch
             {
-                throw;
-            }
+                throw new System.Exception("Json value null");
+            }           
+
+            return JsonConvert.DeserializeObject<TD>(data);
         }
 
         /// <summary>
@@ -151,7 +157,7 @@ namespace GLPIDotNet_API.Dashboard.Common
         /// <exception cref="Exception"></exception>
         public static async Task<TD> GetAsync(Glpi glpi,string link,int skipSegmentUri,CancellationToken cancel = default)
         {
-            if (Check(glpi)) throw new Exception("Not going check the checker glpi");
+            if (Check(glpi)) throw new ExceptionCheck(glpi);
 
             HttpResponseMessage response = null;
             Request request = new Request(async () => await glpi.Client.GetAsync($"{string.Join("", new Uri(link).Segments.Skip(skipSegmentUri))}"), a => response = a);
@@ -162,7 +168,7 @@ namespace GLPIDotNet_API.Dashboard.Common
             }
 
             if (response.IsSuccessStatusCode) return JsonConvert.DeserializeObject<TD>(await response.Content.ReadAsStringAsync(cancel));
-            else throw new Exception($"Error in request.Status code:{response.StatusCode} content?:{await response.Content?.ReadAsStringAsync(cancel) ?? "*NULL*"}");
+            throw new System.Exception($"Error in request.Status code:{response.StatusCode} content?:{await response.Content?.ReadAsStringAsync(cancel) ?? "*NULL*"}");
         }
 
         /// <summary>
@@ -171,7 +177,7 @@ namespace GLPIDotNet_API.Dashboard.Common
         /// <exception cref="Exception"></exception>
         public static async Task<ResponseSearch> GetAsync(Glpi glpi,IEnumerable<Criteria> criterias,Parameter parameter = null, CancellationToken cancel = default)
         {
-            if (Check(glpi)) throw new Exception("Not going check the checker GLPI");
+            if (Check(glpi)) throw new ExceptionCheck(glpi);
             HttpResponseMessage response = null;
             Request request;
 
@@ -213,13 +219,13 @@ namespace GLPIDotNet_API.Dashboard.Common
                     }
 
                     if (responseSearchEnd.IsSuccessStatusCode) seatchEnd = JsonConvert.DeserializeObject<ResponseSearch>(await responseSearchEnd.Content.ReadAsStringAsync(cancel));
-                    else throw new Exception($"Status code:{response.StatusCode} content?:{await response.Content.ReadAsStringAsync(cancel)}");
+                    else throw new System.Exception($"Status code:{response.StatusCode} content?:{await response.Content.ReadAsStringAsync(cancel)}");
 
                     return seatchEnd;
                 }
                 return seatchStart;
             }
-            else throw new Exception($"Status code:{response.StatusCode} content?:{await response.Content.ReadAsStringAsync(cancel)}");
+            else throw new System.Exception($"Status code:{response.StatusCode} content?:{await response.Content.ReadAsStringAsync(cancel)}");
             
         }
 
@@ -230,7 +236,7 @@ namespace GLPIDotNet_API.Dashboard.Common
         
         public static async Task<string> GetEnumerableJson(Glpi glpi, CancellationToken cancel = default)
         {
-            if (Check(glpi)) throw new Exception("Not going check the checker glpi");
+            if (Check(glpi)) throw new System.Exception("Not going check the checker glpi");
             return JsonConvert.SerializeObject(await GetEnumerable(glpi, cancel));
         }
 
@@ -240,7 +246,7 @@ namespace GLPIDotNet_API.Dashboard.Common
         /// <exception cref="Exception"></exception>
         public static async Task<IEnumerable<TD>> GetEnumerable(Glpi glpi,CancellationToken cancel = default)
         {
-            if (Check(glpi)) throw new Exception("Not going check the checker glpi");
+            if (Check(glpi)) throw new System.Exception("Not going check the checker glpi");
 
             List<TD> start;
             List<TD> middle;
@@ -260,7 +266,7 @@ namespace GLPIDotNet_API.Dashboard.Common
             }
 
             if (responseStart.IsSuccessStatusCode) start = JsonConvert.DeserializeObject<List<TD>>(await responseStart.Content.ReadAsStringAsync());
-            else throw new Exception("Error in read response (start collection)");
+            else throw new System.Exception("Error in read response (start collection)");
 
             HttpResponseMessage responseEnd = null;
             Request requestEnd = new Request(async () => await glpi.Client.GetAsync($"{typeof(TD).Name}?{new Parameter() { order = Parameter.EOrder.DESC }}"), a => responseEnd = a);
@@ -276,7 +282,7 @@ namespace GLPIDotNet_API.Dashboard.Common
             }
 
             if (responseEnd.IsSuccessStatusCode) end = JsonConvert.DeserializeObject<List<TD>>(await responseEnd.Content.ReadAsStringAsync());
-            else throw new Exception("Error in read response (end collection)");
+            else throw new System.Exception("Error in read response (end collection)");
 
             end.Reverse();
 
@@ -294,7 +300,7 @@ namespace GLPIDotNet_API.Dashboard.Common
             }
 
             if (responseMiddle.IsSuccessStatusCode) middle = JsonConvert.DeserializeObject<List<TD>>(await responseMiddle.Content.ReadAsStringAsync());
-            else throw new Exception("Error in read response (middle collection)");
+            else throw new System.Exception("Error in read response (middle collection)");
 
             return middle;
             
@@ -306,7 +312,7 @@ namespace GLPIDotNet_API.Dashboard.Common
         /// <exception cref="Exception"></exception>
         public static async Task<IEnumerable<TD>> AddItem(GlpiClient glpi,IEnumerable<TD> ds, CancellationToken cancel = default)
         {
-            if (Check(glpi)) throw new Exception("Not going check the checker glpi");
+            if (Check(glpi)) throw new System.Exception("Not going check the checker glpi");
             JsonSerializerSettings settings = new JsonSerializerSettings();
             settings.NullValueHandling = NullValueHandling.Ignore;
 
@@ -322,15 +328,14 @@ namespace GLPIDotNet_API.Dashboard.Common
             }
 
             if (response.IsSuccessStatusCode) return JsonConvert.DeserializeObject<List<TD>>(await response.Content.ReadAsStringAsync(cancel));
-            throw new Exception($"Status code:{response.StatusCode} content?:{await response.Content.ReadAsStringAsync(cancel)}");
+            throw new System.Exception($"Status code:{response.StatusCode} content?:{await response.Content.ReadAsStringAsync(cancel)}");
 
         }
 
         public int CompareTo(TD other)
         {
-            if (Id < other.Id) return 1;
-            if (Id > other.Id) return 1;
-            return 0;
+            if (Id < other.Id) return -1;
+            return Id > other.Id ? 1 : 0;
         }
     }
 }

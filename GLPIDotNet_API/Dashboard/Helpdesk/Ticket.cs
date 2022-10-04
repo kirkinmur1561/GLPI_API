@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using GLPIDotNet_API.Base;
 using GLPIDotNet_API.Dashboard.Administration;
 using GLPIDotNet_API.Dashboard.Common;
+using GLPIDotNet_API.Dashboard.Common.Exception;
 using GLPIDotNet_API.Dashboard.Helpdesk.LinkTicket;
 using Newtonsoft.Json;
 
@@ -21,16 +22,18 @@ namespace GLPIDotNet_API.Dashboard.Helpdesk
         /// </summary>
         /// <param name="idLocation"></param>
         /// <param name="idCategory"></param>
-        /// <param name="idType"></param>
-        /// <param name="id_recipient"></param>
-        /// <param name="content"></param>
-        public Ticket(long idLocation,long idCategory,long idType,long id_recipient,string content)
+        /// <param name="idType"></param>   
+
+        public Ticket(long idLocation,long idCategory,long idType)
         {
             IdLocations = idLocation;
             ItilCategoriesId = idCategory;
-            Type = idType;
-            UsersIdRecipient = id_recipient;
-            Content = content;
+            Type = idType;              
+        }
+
+        public Ticket()
+        {
+            
         }
 
         /// <summary>
@@ -161,7 +164,7 @@ namespace GLPIDotNet_API.Dashboard.Helpdesk
         /// User recipient
         /// </summary>
         [JsonIgnore]
-        public User UserRecipient { get;  set; }
+        public User UserRecipient { get; private set; }
         [JsonIgnore]
         public RequestType RequestType { get; private set; }
         [JsonIgnore]
@@ -169,37 +172,37 @@ namespace GLPIDotNet_API.Dashboard.Helpdesk
         [JsonIgnore]
         public Location Location { get; private set; }
         [JsonIgnore]
-        public List<TicketTask> TicketTasks { get; private set; } = new();
+        public List<TicketTask> TicketTasks { get;  private set;} = new();
         [JsonIgnore]
-        public List<TicketValidation> TicketValidation { get; private set; } = new();
+        public List<TicketValidation> TicketValidation { get;  private set;} = new();
         [JsonIgnore]
-        public List<TicketCost> TicketCost { get; private set; } = new();
+        public List<TicketCost> TicketCost { get;  private set;} = new();
         [JsonIgnore]
         public List<ProblemTicket> Problem_Ticket { get; private set; } = new();
         [JsonIgnore]
-        public List<ChangeTicket> Change_Ticket { get; private set; } = new();
+        public List<ChangeTicket> Change_Ticket { get;  private set;} = new();
         [JsonIgnore]
-        public List<ItemTicket> Item_Ticket { get; private set; } = new();
+        public List<ItemTicket> Item_Ticket { get;  private set;} = new();
         [JsonIgnore]
-        public List<ITILSolution> ITILSolution { get; private set; } = new();
+        public List<ITILSolution> ITILSolution { get;  private set;} = new();
         [JsonIgnore]
-        public List<ITILFollowup> ITILFollowup { get; private set; } = new();
+        public List<ITILFollowup> ITILFollowup { get;  private set;} = new();
         [JsonIgnore]
-        public List<TicketUser> Ticket_User { get; private set; } = new();
+        public List<TicketUser> Ticket_User { get;  private set;} = new();
         [JsonIgnore]
-        public List<GroupTicket> Group_Ticket { get; private set; } = new();
+        public List<GroupTicket> Group_Ticket { get;  private set;} = new();
         [JsonIgnore]
-        public List<SupplierTicket> Supplier_Ticket { get; private set; } = new();
+        public List<SupplierTicket> Supplier_Ticket { get;  private set;} = new();
 
         /// <summary>
         /// Loader other property
         /// </summary>
         /// <param name="glpi"></param>
         /// <param name="cancel"></param>
-        /// <exception cref="Exception"></exception>
+        /// <exception cref="ExceptionCheck"></exception>
         public async Task Load(Glpi glpi,CancellationToken cancel = default)
         {
-            if (Check(glpi)) throw new Exception("");
+            if (Check(glpi)) throw new ExceptionCheck(glpi);
             if (UsersIdRecipient > 0)
                 UserRecipient = await User.GetAsync(glpi, new Parameter() { id = UsersIdRecipient }, cancel);
 
@@ -235,15 +238,10 @@ namespace GLPIDotNet_API.Dashboard.Helpdesk
                     if(cancel.IsCancellationRequested) cancel.ThrowIfCancellationRequested();
                 }
 
-                if (response.IsSuccessStatusCode)
-                {
+                if (response.IsSuccessStatusCode) 
                     property.SetValue(this,
-                                      JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync(),
-                                                                    property.PropertyType));
-
-                }
-
-                    
+                                      JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync(cancel),
+                                                                    property.PropertyType));                    
             }
         }
 
@@ -296,9 +294,17 @@ namespace GLPIDotNet_API.Dashboard.Helpdesk
         public bool Equals(Ticket other) =>
             GetHashCode() == other.GetHashCode();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="glpi"></param>
+        /// <param name="cancel"></param>
+        /// <returns></returns>
+        /// <exception cref="ExceptionCheck"></exception>
+        /// <exception cref="Exception"></exception>
         public async Task<string> GetDocumentItem(Glpi glpi,CancellationToken cancel = default)
         {
-            if (Check(glpi)) throw new Exception("");
+            if (Check(glpi)) throw new ExceptionCheck(glpi);
             Link link = Links.FirstOrDefault(f => f.Rel == "TicketValidation");
 
             if(link == null) throw new Exception("");
@@ -306,20 +312,18 @@ namespace GLPIDotNet_API.Dashboard.Helpdesk
             foreach (var item in Links.Skip(5))
             {
                 HttpResponseMessage response = null;
-                Request request = new Request(async () => await glpi.Client.GetAsync($"{typeof(Ticket).Name}/{Id}/{item.Rel}", cancel), a => response = a);
+                Request request = new Request(async () => await glpi.Client.GetAsync($"{nameof(Ticket)}/{Id}/{item.Rel}", cancel), a => response = a);
                 glpi.QueueRequest.Enqueue(request);
                 while (response == null)
                 {
                     if (cancel.IsCancellationRequested) cancel.ThrowIfCancellationRequested();
                 }
 
-                if (response.IsSuccessStatusCode) sb.Append(await response.Content.ReadAsStringAsync());
+                if (response.IsSuccessStatusCode) sb.Append(await response.Content.ReadAsStringAsync(cancel));
                 else throw new Exception("");
             }
 
-            return sb.ToString();
-            
-            
+            return sb.ToString();            
         }
 
         public override int GetHashCode()
