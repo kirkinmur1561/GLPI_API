@@ -146,7 +146,7 @@ namespace GLPIDotNet_API.Base
         /// <exception cref="JsonException"/>
         /// <exception cref="Exception"/>
         /// <returns>Статус инициализации. Ответ 200 мб в 2 случаях. Если Init != null или запрос прошел успешно.</returns>
-        public async Task<Initialization> Initialization(bool isFullInit,bool isRephresh = default)
+        public async Task<Initialization> Initialization(bool isFullInit,bool isRephresh = default, CancellationToken cancel = default)
         {
             if (Init != null && !isRephresh) return Init;
 

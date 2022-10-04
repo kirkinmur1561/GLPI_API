@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GLPIDotNet_API.Base
@@ -36,6 +37,6 @@ namespace GLPIDotNet_API.Base
         /// </summary>
         HttpClient Client { get; }
 
-        Task<Initialization> Initialization(bool isFullInit, bool isRephresh = default);
+        Task<Initialization> Initialization(bool isFullInit, bool isRephresh = default,CancellationToken cancel = default);
     }
 }
