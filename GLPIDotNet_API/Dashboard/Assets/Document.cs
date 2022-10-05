@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using GLPIDotNet_API.Dashboard.Common;
+using GLPIDotNet_API.Exception;
 
 namespace GLPIDotNet_API.Dashboard.Assets
 {
@@ -34,7 +35,7 @@ namespace GLPIDotNet_API.Dashboard.Assets
         [Obsolete("No correct method!!!")]
         public async Task Download(Glpi glpi,CancellationToken cancel = default)
         {
-            if (Check(glpi)) throw new Exception("Not check the check or the parameter equal null");
+            if (Check(glpi)) throw new ExceptionCheck(glpi);
 
             HttpResponseMessage response = null;
 
@@ -69,14 +70,19 @@ namespace GLPIDotNet_API.Dashboard.Assets
 
             }
             if (response.IsSuccessStatusCode) return;
-            else throw new Exception($"status code:{response.StatusCode} content:{await response.Content?.ReadAsStringAsync() ?? "*NULL*"}");
+            else throw new System.Exception($"status code:{response.StatusCode} content:{await response.Content?.ReadAsStringAsync() ?? "*NULL*"}");
         }
 
         [Obsolete]
         public static async Task GetDoc(Glpi glpi, string uri, CancellationToken cancel = default)
         {
             Uri result;
-            if (Check(glpi) || string.IsNullOrEmpty(uri) || !Uri.TryCreate(uri, UriKind.Absolute, out result)) throw new Exception("Not check the check or the parameter equal null");
+            if (Check(glpi))
+                throw new ExceptionCheck(glpi);
+
+            if (string.IsNullOrEmpty(uri)) throw new System.Exception("URI is null or empty");
+            if (!Uri.TryCreate(uri, UriKind.Absolute, out result)) throw new System.Exception("Error create URI.");
+           
 
             HttpResponseMessage response = null;
             Request request = new Request
@@ -93,8 +99,10 @@ namespace GLPIDotNet_API.Dashboard.Assets
                 }
 
             }
+
             if (response.IsSuccessStatusCode) return;
-            else throw new Exception($"status code:{response.StatusCode} content:{await response.Content?.ReadAsStringAsync() ?? "*NULL*"}");
+            throw new System.Exception(
+                    $"status code:{response.StatusCode} content:{await response.Content?.ReadAsStringAsync(cancel)}");
         }
     }
 }

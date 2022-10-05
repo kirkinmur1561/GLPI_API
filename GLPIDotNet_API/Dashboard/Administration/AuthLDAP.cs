@@ -59,70 +59,69 @@ namespace GLPIDotNet_API.Dashboard.Administration
             return Equals(obj as AuthLDAP);
         }
 
-        public bool Equals(AuthLDAP other)
-        {
-            return other != null &&
-                   Id == other.Id &&
-                   IdEntities == other.IdEntities &&
-                   IsRecursive == other.IsRecursive &&
-                   Name == other.Name &&
-                   Comment == other.Comment &&
-                   IdLocations == other.IdLocations &&
-                   IdUsersTech == other.IdUsersTech &&
-                   IdGroupsTech == other.IdGroupsTech &&
-                   IdManufacturers == other.IdManufacturers &&
-                   IsDeleted == other.IsDeleted &&
-                   IsTemplate == other.IsTemplate &&
-                   TemplateName == other.TemplateName &&
-                   DateMod == other.DateMod &&
-                   IdUsers == other.IdUsers &&
-                   IdGroups == other.IdGroups &&
-                   TicketTco == other.TicketTco &&
-                   DateCreation == other.DateCreation &&
-                   host == other.host &&
-                   basedn == other.basedn &&
-                   rootdn == other.rootdn &&
-                   port == other.port &&
-                   condition == other.condition &&
-                   login_field == other.login_field &&
-                   sync_field == other.sync_field &&
-                   use_tls == other.use_tls &&
-                   group_field == other.group_field &&
-                   group_condition == other.group_condition &&
-                   group_search_type == other.group_search_type &&
-                   group_member_field == other.group_member_field &&
-                   email1_field == other.email1_field &&
-                   realname_field == other.realname_field &&
-                   firstname_field == other.firstname_field &&
-                   phone_field == other.phone_field &&
-                   phone2_field == other.phone2_field &&
-                   mobile_field == other.mobile_field &&
-                   comment_field == other.comment_field &&
-                   use_dn == other.use_dn &&
-                   time_offset == other.time_offset &&
-                   deref_option == other.deref_option &&
-                   title_field == other.title_field &&
-                   category_field == other.category_field &&
-                   EqualityComparer<object>.Default.Equals(language_field, other.language_field) &&
-                   entity_field == other.entity_field &&
-                   entity_condition == other.entity_condition &&
-                   is_active == other.is_active &&
-                   registration_number_field == other.registration_number_field &&
-                   email2_field == other.email2_field &&
-                   email3_field == other.email3_field &&
-                   email4_field == other.email4_field &&
-                   location_field == other.location_field &&
-                   responsible_field == other.responsible_field &&
-                   pagesize == other.pagesize &&
-                   ldap_maxlimit == other.ldap_maxlimit &&
-                   can_support_pagesize == other.can_support_pagesize &&
-                   EqualityComparer<object>.Default.Equals(picture_field, other.picture_field) &&
-                   EqualityComparer<object>.Default.Equals(inventory_domain, other.inventory_domain) &&
-                   EqualityComparer<object>.Default.Equals(tls_certfile, other.tls_certfile) &&
-                   EqualityComparer<object>.Default.Equals(tls_keyfile, other.tls_keyfile) &&
-                   use_bind == other.use_bind &&
-                   timeout == other.timeout;
-        }
+        public bool Equals(AuthLDAP other) =>
+            other != null &&
+            Id == other.Id &&
+            IdEntities == other.IdEntities &&
+            IsRecursive == other.IsRecursive &&
+            Name == other.Name &&
+            Comment == other.Comment &&
+            IdLocations == other.IdLocations &&
+            IdUsersTech == other.IdUsersTech &&
+            IdGroupsTech == other.IdGroupsTech &&
+            IdManufacturers == other.IdManufacturers &&
+            IsDeleted == other.IsDeleted &&
+            IsTemplate == other.IsTemplate &&
+            TemplateName == other.TemplateName &&
+            DateMod == other.DateMod &&
+            IdUsers == other.IdUsers &&
+            IdGroups == other.IdGroups &&
+            TicketTco == other.TicketTco &&
+            DateCreation == other.DateCreation &&
+            host == other.host &&
+            basedn == other.basedn &&
+            rootdn == other.rootdn &&
+            port == other.port &&
+            condition == other.condition &&
+            login_field == other.login_field &&
+            sync_field == other.sync_field &&
+            use_tls == other.use_tls &&
+            group_field == other.group_field &&
+            group_condition == other.group_condition &&
+            group_search_type == other.group_search_type &&
+            group_member_field == other.group_member_field &&
+            email1_field == other.email1_field &&
+            realname_field == other.realname_field &&
+            firstname_field == other.firstname_field &&
+            phone_field == other.phone_field &&
+            phone2_field == other.phone2_field &&
+            mobile_field == other.mobile_field &&
+            comment_field == other.comment_field &&
+            use_dn == other.use_dn &&
+            time_offset == other.time_offset &&
+            deref_option == other.deref_option &&
+            title_field == other.title_field &&
+            category_field == other.category_field &&
+            EqualityComparer<object>.Default.Equals(language_field, other.language_field) &&
+            entity_field == other.entity_field &&
+            entity_condition == other.entity_condition &&
+            is_active == other.is_active &&
+            registration_number_field == other.registration_number_field &&
+            email2_field == other.email2_field &&
+            email3_field == other.email3_field &&
+            email4_field == other.email4_field &&
+            location_field == other.location_field &&
+            responsible_field == other.responsible_field &&
+            pagesize == other.pagesize &&
+            ldap_maxlimit == other.ldap_maxlimit &&
+            can_support_pagesize == other.can_support_pagesize &&
+            EqualityComparer<object>.Default.Equals(picture_field, other.picture_field) &&
+            EqualityComparer<object>.Default.Equals(inventory_domain, other.inventory_domain) &&
+            EqualityComparer<object>.Default.Equals(tls_certfile, other.tls_certfile) &&
+            EqualityComparer<object>.Default.Equals(tls_keyfile, other.tls_keyfile) &&
+            use_bind == other.use_bind &&
+            timeout == other.timeout;
+        
 
         public override int GetHashCode()
         {

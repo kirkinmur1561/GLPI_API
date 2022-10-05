@@ -6,6 +6,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using GLPIDotNet_API.Exception;
 
 namespace GLPIDotNet_API.Base
 {
@@ -68,7 +69,18 @@ namespace GLPIDotNet_API.Base
             Password = password ?? throw new ArgumentNullException(nameof(password));
         }
 
-        private static async Task<ResponseTestConnection> PTestConnection(string baseAddress,
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="baseAddress"></param>
+        /// <param name="appToken"></param>
+        /// <param name="body"></param>
+        /// <param name="isFullInit"></param>
+        /// <param name="isUt"></param>
+        /// <param name="cancel"></param>
+        /// <exception cref="ExceptionTestConnection"></exception>
+        /// <returns></returns>
+        private static async Task<bool> PTestConnection(string baseAddress,
                                                                   string appToken,
                                                                   string body,
                                                                   bool isFullInit,
@@ -93,18 +105,20 @@ namespace GLPIDotNet_API.Base
                 $"{(isFullInit ? "initSession?get_full_session=true" : "initSession")}",
                 cancel);
 
-            var rtc =  ResponseTestConnection.Convert((int)message.StatusCode, await message.Content.ReadAsStringAsync(cancel));
 
-            if (message.IsSuccessStatusCode)
-            {
-                Initialization init = JsonConvert.DeserializeObject<Initialization>(await message.Content.ReadAsStringAsync(cancel));
-                http.DefaultRequestHeaders.Clear();
-                http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                http.DefaultRequestHeaders.Add("Session-Token", init.SessionToken);
-                http.DefaultRequestHeaders.Add("app_token", appToken);
-                await http.GetAsync($"killSession", cancel);
-            }           
-            return rtc;
+
+            if (!message.IsSuccessStatusCode)
+                throw new ExceptionTestConnection(
+                    $"Status code:{message.StatusCode}\n{await message.Content.ReadAsStringAsync(cancel)}");
+            
+            Initialization init = JsonConvert.DeserializeObject<Initialization>(await message.Content.ReadAsStringAsync(cancel));
+            http.DefaultRequestHeaders.Clear();
+            http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            http.DefaultRequestHeaders.Add("Session-Token", init.SessionToken);
+            http.DefaultRequestHeaders.Add("app_token", appToken);
+            await http.GetAsync($"killSession", cancel);
+            return true;
+
         }
 
         /// <summary>
@@ -116,7 +130,7 @@ namespace GLPIDotNet_API.Base
         /// <param name="isFullInit">True - для полной инициализации, false - быстрая инициализация</param>
         /// <param name="cancel"></param>
         /// <returns>Если ответ 400 - это могло произойти либо на стороне GLPI или перехват ошибки при запросе. Другие ответы отправляет GLPI.</returns>
-        public static async Task<ResponseTestConnection> TestConnection(string baseAddress,
+        public static async Task<bool> TestConnection(string baseAddress,
             string appToken,
             string userToken,
             bool isFullInit,
@@ -136,7 +150,7 @@ namespace GLPIDotNet_API.Base
         /// <param name="password">Пароль к логину</param>
         /// <param name="isFullInit">True - для полной инициализации, false - быстрая инициализация</param>
         /// <returns>Если ответ 400 - это могло произойти либо на стороне GLPI или перехват ошибки при запросе. Другие ответы отправляет GLPI.</returns>
-        public static async Task<ResponseTestConnection> TestConnection(string baseAddress,
+        public static async Task<bool> TestConnection(string baseAddress,
             string appToken,
             string login,
             string password,
@@ -154,7 +168,7 @@ namespace GLPIDotNet_API.Base
         /// Обязательная функция к вызову после создания объекта, которая инициализирует на стороне GLPI
         /// </summary>
         /// <param name="isFullInit">True - для полной инициализации, false - быстрая инициализация</param>
-        /// <param name="is_rephresh">True</param>
+        /// <param name="isRephresh">True</param>
         /// <param name="cancel"></param>
         /// <exception cref="JsonException"/>
         /// <exception cref="Exception"/>
@@ -171,10 +185,10 @@ namespace GLPIDotNet_API.Base
                 new AuthenticationHeaderValue("user_token", UserToken) :
                 new AuthenticationHeaderValue("Basic", $"{Convert.ToBase64String(Encoding.UTF8.GetBytes($"{Login}:{Password}"))}");
             if (isFullInit)
-                response = await Client.GetAsync($"initSession?get_full_session=true");
+                response = await Client.GetAsync($"initSession?get_full_session=true", cancel);
             else
-                response = await Client.GetAsync($"initSession");
-            string data = await response.Content.ReadAsStringAsync();
+                response = await Client.GetAsync($"initSession", cancel);
+            string data = await response.Content.ReadAsStringAsync(cancel);
             Init = JsonConvert.DeserializeObject<Initialization>(data);
             response.Dispose();
             return Init;

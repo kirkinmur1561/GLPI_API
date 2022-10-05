@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 using GLPIDotNet_API.Base;
 using GLPIDotNet_API.Dashboard.Administration;
 using GLPIDotNet_API.Dashboard.Common;
-using GLPIDotNet_API.Dashboard.Common.Exception;
 using GLPIDotNet_API.Dashboard.Helpdesk.LinkTicket;
+using GLPIDotNet_API.Exception;
 using Newtonsoft.Json;
 
 namespace GLPIDotNet_API.Dashboard.Helpdesk
@@ -307,7 +307,7 @@ namespace GLPIDotNet_API.Dashboard.Helpdesk
             if (Check(glpi)) throw new ExceptionCheck(glpi);
             Link link = Links.FirstOrDefault(f => f.Rel == "TicketValidation");
 
-            if(link == null) throw new Exception("");
+            if (link == null) throw new System.Exception("Object Link is null");
             StringBuilder sb = new StringBuilder();
             foreach (var item in Links.Skip(5))
             {
@@ -320,7 +320,9 @@ namespace GLPIDotNet_API.Dashboard.Helpdesk
                 }
 
                 if (response.IsSuccessStatusCode) sb.Append(await response.Content.ReadAsStringAsync(cancel));
-                else throw new Exception("");
+                else
+                    throw new System.Exception(
+                        $"Status code:{response.StatusCode}\nContext:{response.Content.ReadAsStringAsync(cancel)}");
             }
 
             return sb.ToString();            

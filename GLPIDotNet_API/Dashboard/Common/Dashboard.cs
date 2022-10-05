@@ -8,7 +8,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using GLPIDotNet_API.Dashboard.Common.Exception;
+using GLPIDotNet_API.Exception;
 
 namespace GLPIDotNet_API.Dashboard.Common
 {

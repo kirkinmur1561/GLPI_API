@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Net.Http;
 using GLPIDotNet_API.Dashboard.Common;
+using GLPIDotNet_API.Exception;
 
 namespace GLPIDotNet_API.Base
 {
@@ -14,10 +15,12 @@ namespace GLPIDotNet_API.Base
         /// <param name="glpi"></param>
         /// <param name="endPoint">ex. Computer/23</param>
         /// <param name="cancel"></param>
+        /// <exception cref="ExceptionCheck"></exception>
+        /// <exception cref="Exception"></exception>
         /// <returns></returns>
         public new static async Task<string> GetJson(Glpi glpi,string endPoint,CancellationToken cancel = default)
         {
-            if (Check(glpi)) throw new Exception("");
+            if (Check(glpi)) throw new ExceptionCheck(glpi);
 
             HttpResponseMessage response = null;
             Request request = new Request(async () =>await glpi.Client.GetAsync(endPoint, cancel),a=>response = a);
@@ -29,7 +32,8 @@ namespace GLPIDotNet_API.Base
             }
 
             if (response.IsSuccessStatusCode) return await response.Content.ReadAsStringAsync(cancel);
-            else throw new Exception("");
+            throw new System.Exception(
+                $"Status code:{response.StatusCode}\nContext:{response.Content.ReadAsStringAsync(cancel)}");
         }
     }
 }

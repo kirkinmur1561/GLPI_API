@@ -8,8 +8,8 @@
 
         public Range(long start = 0, long end = 50)
         {
-            this.Start = start;
-            this.End = end;
+            Start = start;
+            End = end;
         }
 
         public long Start { get; set; }

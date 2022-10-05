@@ -16,21 +16,17 @@ namespace GLPIDotNet_API.Base
             ActionOut = actionOut;
         }
 
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as Request);
-        }
+        public override bool Equals(object obj) =>
+            Equals(obj as Request);
+        
 
-        public bool Equals(Request other)
-        {
-            return other is not null &&
-                   EqualityComparer<Func<Task<HttpResponseMessage>>>.Default.Equals(FuncIn, other.FuncIn) &&
-                   EqualityComparer<Action<HttpResponseMessage>>.Default.Equals(ActionOut, other.ActionOut);
-        }
+        public bool Equals(Request other) =>
+            other is not null &&
+            EqualityComparer<Func<Task<HttpResponseMessage>>>.Default.Equals(FuncIn, other.FuncIn) &&
+            EqualityComparer<Action<HttpResponseMessage>>.Default.Equals(ActionOut, other.ActionOut);
+        
 
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(FuncIn, ActionOut);
-        }
+        public override int GetHashCode() =>
+            HashCode.Combine(FuncIn, ActionOut);
     }
 }

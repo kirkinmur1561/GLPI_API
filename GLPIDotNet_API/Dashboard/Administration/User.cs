@@ -5,6 +5,7 @@ using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using GLPIDotNet_API.Exception;
 
 namespace GLPIDotNet_API.Dashboard.Administration
 {
@@ -190,10 +191,11 @@ namespace GLPIDotNet_API.Dashboard.Administration
         /// <exception cref="Exception"></exception>
         public async Task GetPicture(Glpi glpi, CancellationToken cancel = default)
         {
-            if(Check(glpi) || Id == null) throw new Exception("Not check the check or the parameter equal null");
+            if (Check(glpi)) throw new ExceptionCheck(glpi);
+            if (Id == null) throw new System.Exception("Id is null");
 
             HttpResponseMessage response = null;
-            Request request = new Request(async () => await glpi.Client.GetAsync($"User/{Id}/Picture"), a => response = a);
+            Request request = new Request(async () => await glpi.Client.GetAsync($"User/{Id}/Picture", cancel), a => response = a);
 
             glpi.QueueRequest.Enqueue(request);
 
@@ -206,7 +208,7 @@ namespace GLPIDotNet_API.Dashboard.Administration
             }
 
             if (response.IsSuccessStatusCode) return;
-            else throw new Exception($"status code:{response.StatusCode} content:{await response.Content?.ReadAsStringAsync() ?? "*NULL*"}");
+            throw new System.Exception($"status code:{response.StatusCode} content:{await response.Content?.ReadAsStringAsync(cancel)}");
         }
 
         

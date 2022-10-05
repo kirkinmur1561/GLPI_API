@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using GLPIDotNet_API.Exception;
 
 namespace GLPIDotNet_API.Dashboard.Search
 {
@@ -30,7 +31,7 @@ namespace GLPIDotNet_API.Dashboard.Search
         public async static Task<Dictionary<string, List<SearchOption<D>>>> GetListSearchOptions(Glpi glpi, CancellationToken cancel = default)
         {
             Dictionary<int, int> keys = new Dictionary<int, int>();
-            if (Dashboard<D>.Check(glpi)) throw new Exception("Not going check the checker glpi");
+            if (Dashboard<D>.Check(glpi)) throw new ExceptionCheck(glpi);
             HttpResponseMessage response = null;
             Request request =
                 new Request(async () => await glpi.Client.GetAsync($"listSearchOptions/{typeof(D).Name}", cancel),
@@ -44,7 +45,7 @@ namespace GLPIDotNet_API.Dashboard.Search
             }
 
             if (!response.IsSuccessStatusCode)
-                throw new Exception(
+                throw new System.Exception(
                     $"Status code:{response.StatusCode} content?:{await response.Content.ReadAsStringAsync(cancel)}");
             
             Dictionary<string, List<SearchOption<D>>> pairs = new Dictionary<string, List<SearchOption<D>>>();

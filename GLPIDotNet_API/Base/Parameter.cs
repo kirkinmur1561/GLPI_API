@@ -20,7 +20,11 @@ namespace GLPIDotNet_API.Base
                 p_id = value;
                 if (p_id != null)
                 {
-                    this.GetType().GetProperties().Where(w => !new string[] { "p_id", "id" }.Contains(w.Name)).ToList().ForEach(a => a.SetValue(this, null));
+                    GetType()
+                        .GetProperties()
+                        .Where(w => !new string[] { "p_id", "id" }.Contains(w.Name))
+                        .ToList()
+                        .ForEach(a => a.SetValue(this, null));
                 }
             }
         }
@@ -99,7 +103,9 @@ namespace GLPIDotNet_API.Base
 
         protected internal void Updater(object val,[CallerMemberName] string name = "")
         {
-            this.GetType().GetField($"p_{name}", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(this, val);
+            GetType()
+                .GetField($"p_{name}", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                ?.SetValue(this, val);
             if (val != null) id = null;
             
         }
@@ -107,7 +113,7 @@ namespace GLPIDotNet_API.Base
         public override string ToString() =>
             id != null ?
                 $"/{id}" : 
-                $"{string.Join("&", this.GetType().GetProperties().Where(w => w.GetValue(this) != null).Select(s => {  return $"{s.Name}={s.GetValue(this).ToString().ToLower()}"; }))}";
+                $"{string.Join("&", this.GetType().GetProperties().Where(w => w.GetValue(this) != null).Select(s => $"{s.Name}={s.GetValue(this)?.ToString()?.ToLower()}"))}";
         
 
     }

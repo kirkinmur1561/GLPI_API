@@ -1,7 +1,7 @@
 using System.Text;
 using GLPIDotNet_API.Base;
 
-namespace GLPIDotNet_API.Dashboard.Common.Exception
+namespace GLPIDotNet_API.Exception
 {
     public class ExceptionCheck:System.Exception
     {
