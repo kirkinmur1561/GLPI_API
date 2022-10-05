@@ -43,37 +43,41 @@ namespace GLPIDotNet_API.Dashboard.Search
                 if (cancel.IsCancellationRequested) cancel.ThrowIfCancellationRequested();
             }
 
-            if (response.IsSuccessStatusCode)
-            {
-                Dictionary<string, List<SearchOption<D>>> pairs = new Dictionary<string, List<SearchOption<D>>>();
-                var abstract_objects = JsonConvert.DeserializeObject<Dictionary<string, object>>(await response.Content.ReadAsStringAsync());
-                string last_key = string.Empty;
-                List<SearchOption<D>> last_searchOptions = new List<SearchOption<D>>();
+            if (!response.IsSuccessStatusCode)
+                throw new Exception(
+                    $"Status code:{response.StatusCode} content?:{await response.Content.ReadAsStringAsync(cancel)}");
+            
+            Dictionary<string, List<SearchOption<D>>> pairs = new Dictionary<string, List<SearchOption<D>>>();
+            var abstract_objects = JsonConvert.DeserializeObject<Dictionary<string, object>>(await response.Content.ReadAsStringAsync(cancel));
+            string last_key = string.Empty;
+            List<SearchOption<D>> last_searchOptions = new List<SearchOption<D>>();
 
-                foreach (var item in abstract_objects)
+            foreach (var item in abstract_objects)
+            {
+                if (int.TryParse(item.Key, out int va))
                 {
-                    if (int.TryParse(item.Key, out int va))
+                    SearchOption<D> search = JsonConvert.DeserializeObject<SearchOption<D>>(item.Value?.ToString() ?? string.Empty);
+                    if (search != null)
                     {
-                        SearchOption<D> search = JsonConvert.DeserializeObject<SearchOption<D>>(item.Value.ToString());
                         search.id_option = va;
                         last_searchOptions.Add(search);
                     }
+                }
+                else
+                {
+                    if (last_key == string.Empty) last_key = item.Key;
                     else
                     {
-                        if (last_key == string.Empty) last_key = item.Key;
-                        else
-                        {
-                            pairs.Add(last_key, last_searchOptions);
-                            last_searchOptions = new List<SearchOption<D>>();
-                            last_key = item.Key;
-                        }
+                        pairs.Add(last_key, last_searchOptions);
+                        last_searchOptions = new List<SearchOption<D>>();
+                        last_key = item.Key;
                     }
                 }
-                pairs.Add(last_key, last_searchOptions);
-
-                return pairs;
             }
-            else throw new Exception($"Status code:{response.StatusCode} content?:{await response.Content.ReadAsStringAsync(cancel)}");
+            pairs.Add(last_key, last_searchOptions);
+
+            return pairs;
+
         }
     }
 }

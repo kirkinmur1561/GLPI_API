@@ -91,18 +91,19 @@ namespace GLPIDotNet_API.Dashboard.Search
         protected internal static string GetURI(IEnumerable<Criteria> criterias)
         {
             StringBuilder sb = new StringBuilder();
-            for (int index = 0; index < criterias.Count(); index++)
+            Criteria[] criteriaArray = criterias.ToArray();
+            for (int index = 0; index < criteriaArray.Length; index++)
             {
-                Criteria criteria = criterias.ToArray()[index];
+                Criteria criteria = criteriaArray[index];
                 var objs = criteria.GetType().GetProperties().Where(w =>
                 {
                     if (index == 0 & w.Name == "link") return false;
 
                     object obj = w.GetValue(criteria);
 
-                    if (obj is string & !string.IsNullOrEmpty(obj.ToString())) return true;
-                    else if (obj is not string) return true;
-                    else return false;
+                    if (obj is string & !string.IsNullOrEmpty(obj?.ToString())) return true;
+                    if (obj is not string) return true;
+                    return false;
                 })
                 .Select(s =>
                 string.Format(string.Format("criteria[{0}][{1}]={2}",
@@ -111,7 +112,7 @@ namespace GLPIDotNet_API.Dashboard.Search
                                             s.GetValue(criteria))));
 
                 sb.Append(string.Join("&", objs));
-                if (index + 1 < criterias.Count()) sb.Append("&");
+                if (index + 1 < criteriaArray.Length) sb.Append("&");
             }
             return sb.ToString();
         }

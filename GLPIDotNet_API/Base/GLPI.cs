@@ -72,30 +72,38 @@ namespace GLPIDotNet_API.Base
                                                                   string appToken,
                                                                   string body,
                                                                   bool isFullInit,
-                                                                  bool isUt = true)
+                                                                  bool isUt = true,
+                                                                  CancellationToken cancel = default)
         {
             using HttpClient http = new HttpClient();
+            
             http.Timeout = TimeSpan.FromSeconds(5);
+            
             http.BaseAddress = new Uri(baseAddress);
+            
             http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            
             http.DefaultRequestHeaders.Add("app_token", appToken);
+            
             http.DefaultRequestHeaders.Authorization = isUt ?
                 new AuthenticationHeaderValue("user_token", body) :
                 new AuthenticationHeaderValue("Basic", Convert.ToBase64String(Encoding.UTF8.GetBytes(body)));
-            HttpResponseMessage message = await http.GetAsync(string.Format("{0}",
-                isFullInit ? "initSession?get_full_session=true" : "initSession"));
+            
+            HttpResponseMessage message = await http.GetAsync(
+                $"{(isFullInit ? "initSession?get_full_session=true" : "initSession")}",
+                cancel);
 
-            var rtc =  ResponseTestConnection.Convert((int)message.StatusCode, await message.Content.ReadAsStringAsync());
+            var rtc =  ResponseTestConnection.Convert((int)message.StatusCode, await message.Content.ReadAsStringAsync(cancel));
 
             if (message.IsSuccessStatusCode)
             {
-                Initialization init = JsonConvert.DeserializeObject<Initialization>(await message.Content.ReadAsStringAsync());
+                Initialization init = JsonConvert.DeserializeObject<Initialization>(await message.Content.ReadAsStringAsync(cancel));
                 http.DefaultRequestHeaders.Clear();
                 http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 http.DefaultRequestHeaders.Add("Session-Token", init.SessionToken);
                 http.DefaultRequestHeaders.Add("app_token", appToken);
-                await http.GetAsync($"killSession");
-            }
+                await http.GetAsync($"killSession", cancel);
+            }           
             return rtc;
         }
 
@@ -106,15 +114,17 @@ namespace GLPIDotNet_API.Base
         /// <param name="appToken">Токен приложения. Его нужно получить на веб старницы GLPI</param>
         /// <param name="userToken">Нужен для иниициализации. Его нужно получить на веб страницы GLPI</param>
         /// <param name="isFullInit">True - для полной инициализации, false - быстрая инициализация</param>
+        /// <param name="cancel"></param>
         /// <returns>Если ответ 400 - это могло произойти либо на стороне GLPI или перехват ошибки при запросе. Другие ответы отправляет GLPI.</returns>
         public static async Task<ResponseTestConnection> TestConnection(string baseAddress,
-                                                                string appToken,
-                                                                string userToken,
-                                                                bool isFullInit) =>
+            string appToken,
+            string userToken,
+            bool isFullInit,
+            CancellationToken cancel = default) =>
             await PTestConnection(baseAddress,
-                                  appToken,
-                                  userToken,
-                                  isFullInit);
+                appToken,
+                userToken,
+                isFullInit, cancel: cancel);
 
 
         /// <summary>
@@ -127,15 +137,17 @@ namespace GLPIDotNet_API.Base
         /// <param name="isFullInit">True - для полной инициализации, false - быстрая инициализация</param>
         /// <returns>Если ответ 400 - это могло произойти либо на стороне GLPI или перехват ошибки при запросе. Другие ответы отправляет GLPI.</returns>
         public static async Task<ResponseTestConnection> TestConnection(string baseAddress,
-                                                                string appToken,
-                                                                string login,
-                                                                string password,
-                                                                bool isFullInit) =>
+            string appToken,
+            string login,
+            string password,
+            bool isFullInit,
+            CancellationToken cancel = default) =>
             await PTestConnection(baseAddress,
-                                  appToken,
-                                  $"{login}:{password}",
-                                  isFullInit,
-                                  false);
+                appToken,
+                $"{login}:{password}",
+                isFullInit,
+                false,
+                cancel: cancel);
 
 
         /// <summary>
@@ -143,6 +155,7 @@ namespace GLPIDotNet_API.Base
         /// </summary>
         /// <param name="isFullInit">True - для полной инициализации, false - быстрая инициализация</param>
         /// <param name="is_rephresh">True</param>
+        /// <param name="cancel"></param>
         /// <exception cref="JsonException"/>
         /// <exception cref="Exception"/>
         /// <returns>Статус инициализации. Ответ 200 мб в 2 случаях. Если Init != null или запрос прошел успешно.</returns>
@@ -172,10 +185,10 @@ namespace GLPIDotNet_API.Base
         /// </summary>
         /// <exception cref="HttpRequestException"/>
         /// <exception cref="Exception"/>
-        private async Task KillSession()
+        private async Task KillSession(CancellationToken cancel = default)
         {
             await SetHeaderDefault();
-            await Client.GetAsync($"killSession");
+            await Client.GetAsync($"killSession", cancel);
         }
 
         /// <summary>
@@ -205,7 +218,7 @@ namespace GLPIDotNet_API.Base
          {
              while (true)
              {
-                 await Task.Delay(250);
+                 await Task.Delay(200);
                  Request request;
                  if (QueueRequest.TryDequeue(out request))
                      request.ActionOut.Invoke(await request.FuncIn.Invoke());
