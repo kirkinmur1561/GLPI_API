@@ -180,10 +180,10 @@ namespace GLPIDotNet_API.Dashboard.Common
             if (Check(glpi)) throw new ExceptionCheck(glpi);
             HttpResponseMessage response = null;
             Request request;
-
+            await glpi.SetHeaderDefault();
             var adr = Criteria.GetURI(criterias);
 
-            if (parameter == null) request = new Request(async () => await glpi.Client.GetAsync($"search/{typeof(TD).Name}?{Criteria.GetURI(criterias)}"),
+            if (parameter == null) request = new Request(async () => await glpi.Client.GetAsync($"search/{typeof(TD).Name}?{Criteria.GetURI(criterias)}",cancel),
                                                          a => response = a);
 
             
@@ -225,34 +225,42 @@ namespace GLPIDotNet_API.Dashboard.Common
                 }
                 return seatchStart;
             }
-            else throw new System.Exception($"Status code:{response.StatusCode} content?:{await response.Content.ReadAsStringAsync(cancel)}");
+            throw new System.Exception($"Status code:{response.StatusCode} content?:{await response.Content.ReadAsStringAsync(cancel)}");
             
         }
 
+        
         /// <summary>
         /// Получить список объектов D
         /// </summary>
-        /// <param name="glpi">Основное подключение к glpi</param>
-        
+        /// <param name="glpi"></param>
+        /// <param name="cancel"></param>
+        /// <returns></returns>
+        /// <exception cref="ExceptionCheck"></exception>
         public static async Task<string> GetEnumerableJson(Glpi glpi, CancellationToken cancel = default)
         {
-            if (Check(glpi)) throw new System.Exception("Not going check the checker glpi");
+            if (Check(glpi)) throw new ExceptionCheck(glpi);
             return JsonConvert.SerializeObject(await GetEnumerable(glpi, cancel));
         }
 
         /// <summary>
         /// Получить список объектов D
         /// </summary>
+        /// <param name="glpi"></param>
+        /// <param name="cancel"></param>
+        /// <returns></returns>
+        /// <exception cref="ExceptionCheck"></exception>
         /// <exception cref="Exception"></exception>
         public static async Task<IEnumerable<TD>> GetEnumerable(Glpi glpi,CancellationToken cancel = default)
         {
-            if (Check(glpi)) throw new System.Exception("Not going check the checker glpi");
+            if (Check(glpi)) throw new ExceptionCheck(glpi);
 
             List<TD> start;
             List<TD> middle;
             List<TD> end;
 
             HttpResponseMessage responseStart = null;
+            await glpi.SetHeaderDefault();
             Request requestStart = new Request(async () => await glpi.Client.GetAsync($"{typeof(TD).Name}", cancel), a => responseStart = a);
             glpi.QueueRequest.Enqueue(requestStart);
 
@@ -312,14 +320,15 @@ namespace GLPIDotNet_API.Dashboard.Common
         /// <exception cref="Exception"></exception>
         public static async Task<IEnumerable<TD>> AddItem(GlpiClient glpi,IEnumerable<TD> ds, CancellationToken cancel = default)
         {
-            if (Check(glpi)) throw new System.Exception("Not going check the checker glpi");
+            if (Check(glpi)) throw new ExceptionCheck(glpi);
+            await glpi.SetHeaderDefault();
             JsonSerializerSettings settings = new JsonSerializerSettings();
             settings.NullValueHandling = NullValueHandling.Ignore;
 
 
             StringContent content = new StringContent(JsonConvert.SerializeObject(new { input = ds },Formatting.Indented, settings), Encoding.UTF8, "application/json");
             HttpResponseMessage response = null;
-            Request request = new Request(async () => await glpi.Client.PostAsync(typeof(TD).Name, content), a => response = a);
+            Request request = new Request(async () => await glpi.Client.PostAsync(typeof(TD).Name, content,cancel), a => response = a);
             glpi.QueueRequest.Enqueue(request);
 
             while (response == null)

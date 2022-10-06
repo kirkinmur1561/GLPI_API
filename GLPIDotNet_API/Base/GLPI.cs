@@ -35,8 +35,12 @@ namespace GLPIDotNet_API.Base
         private Glpi(string baseAddress, string appToken):this()
         {
             AppToken = appToken ?? throw new ArgumentNullException(nameof(appToken));
-            Client = new HttpClient();
-            Client.BaseAddress = new Uri(baseAddress);
+            Uri uri;
+            if (!Uri.TryCreate(baseAddress, UriKind.Absolute, out uri))
+                throw new ArgumentException("Uncorrected baseAddress");
+            
+            Client = new HttpClient();            
+            Client.BaseAddress = uri;
         }
 
         /// <summary>
@@ -189,9 +193,16 @@ namespace GLPIDotNet_API.Base
             else
                 response = await Client.GetAsync($"initSession", cancel);
             string data = await response.Content.ReadAsStringAsync(cancel);
-            Init = JsonConvert.DeserializeObject<Initialization>(data);
-            response.Dispose();
-            return Init;
+            if (response.IsSuccessStatusCode)
+            {                
+                Init = JsonConvert.DeserializeObject<Initialization>(data);
+                response.Dispose();
+                return Init;
+            }
+
+            throw new System.Exception(data);
+
+
         }
 
         /// <summary>

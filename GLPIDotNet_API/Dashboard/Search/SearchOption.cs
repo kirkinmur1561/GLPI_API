@@ -10,7 +10,7 @@ using GLPIDotNet_API.Exception;
 
 namespace GLPIDotNet_API.Dashboard.Search
 {
-    public class SearchOption<D> where D : Dashboard<D>
+    public class SearchOption<TD> where TD : Dashboard<TD>
     {
         [JsonIgnore]
         public int id_option { get; set; }
@@ -28,13 +28,14 @@ namespace GLPIDotNet_API.Dashboard.Search
         /// Критерии поиска по объекту D
         /// </summary>
         /// <exception cref="Exception"></exception>
-        public async static Task<Dictionary<string, List<SearchOption<D>>>> GetListSearchOptions(Glpi glpi, CancellationToken cancel = default)
+        public static async Task<Dictionary<string, List<SearchOption<TD>>>> GetListSearchOptions(Glpi glpi, CancellationToken cancel = default)
         {
             Dictionary<int, int> keys = new Dictionary<int, int>();
-            if (Dashboard<D>.Check(glpi)) throw new ExceptionCheck(glpi);
+            if (Dashboard<TD>.Check(glpi)) throw new ExceptionCheck(glpi);
+            await glpi.SetHeaderDefault();
             HttpResponseMessage response = null;
             Request request =
-                new Request(async () => await glpi.Client.GetAsync($"listSearchOptions/{typeof(D).Name}", cancel),
+                new Request(async () => await glpi.Client.GetAsync($"listSearchOptions/{typeof(TD).Name}", cancel),
                     a => response = a);
             
             glpi.QueueRequest.Enqueue(request);
@@ -48,16 +49,16 @@ namespace GLPIDotNet_API.Dashboard.Search
                 throw new System.Exception(
                     $"Status code:{response.StatusCode} content?:{await response.Content.ReadAsStringAsync(cancel)}");
             
-            Dictionary<string, List<SearchOption<D>>> pairs = new Dictionary<string, List<SearchOption<D>>>();
+            Dictionary<string, List<SearchOption<TD>>> pairs = new Dictionary<string, List<SearchOption<TD>>>();
             var abstract_objects = JsonConvert.DeserializeObject<Dictionary<string, object>>(await response.Content.ReadAsStringAsync(cancel));
             string last_key = string.Empty;
-            List<SearchOption<D>> last_searchOptions = new List<SearchOption<D>>();
+            List<SearchOption<TD>> last_searchOptions = new List<SearchOption<TD>>();
 
             foreach (var item in abstract_objects)
             {
                 if (int.TryParse(item.Key, out int va))
                 {
-                    SearchOption<D> search = JsonConvert.DeserializeObject<SearchOption<D>>(item.Value?.ToString() ?? string.Empty);
+                    SearchOption<TD> search = JsonConvert.DeserializeObject<SearchOption<TD>>(item.Value?.ToString() ?? string.Empty);
                     if (search != null)
                     {
                         search.id_option = va;
@@ -70,7 +71,7 @@ namespace GLPIDotNet_API.Dashboard.Search
                     else
                     {
                         pairs.Add(last_key, last_searchOptions);
-                        last_searchOptions = new List<SearchOption<D>>();
+                        last_searchOptions = new List<SearchOption<TD>>();
                         last_key = item.Key;
                     }
                 }
@@ -80,5 +81,7 @@ namespace GLPIDotNet_API.Dashboard.Search
             return pairs;
 
         }
+
+        
     }
 }
