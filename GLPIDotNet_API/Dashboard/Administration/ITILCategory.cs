@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using GLPIDotNet_API.Dashboard.Common;
 using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
+
 namespace GLPIDotNet_API.Dashboard.Administration
 {
     public class ITILCategory : Dashboard<ITILCategory>, IEquatable<ITILCategory>
@@ -97,6 +100,18 @@ namespace GLPIDotNet_API.Dashboard.Administration
             return hash.ToHashCode();
         }
 
+        public static IEnumerable<ITILCategory> GetLevel_1(IEnumerable<ITILCategory> items) =>
+            items.Where(w => w.Level == 1);
+
+        public static IEnumerable<ITILCategory> GetSubLevel(IEnumerable<ITILCategory> items,ITILCategory item,int level)
+        {
+            if (item.SonsCache.Length < 4) return new List<ITILCategory>();
+            var data = JsonSerializer.Deserialize<Dictionary<string, object>>(item
+                .SonsCache).Skip(1).Select(s => s.Value.ToString());
+
+            return items.Where(w => w.Level == level && data.Contains(w.Id.ToString()));
+        }
+
         public static bool operator ==(ITILCategory left, ITILCategory right)
         {
             return EqualityComparer<ITILCategory>.Default.Equals(left, right);
@@ -111,5 +126,87 @@ namespace GLPIDotNet_API.Dashboard.Administration
         {
             return Equals(obj as ITILCategory);
         }
+    }
+
+    public sealed class ITILCategoryCreator:ICreatorCategory
+    {         
+        private List<ITILCategory> _selectedPoint = new List<ITILCategory>();        
+        public readonly IEnumerable<ITILCategory> WorkCollection;
+        public int StartLevelDefault { get; set; } = 1;
+        
+        public IEnumerable<ITILCategory> SelectedPoint() => 
+            _selectedPoint;
+
+        public bool Append(ITILCategory category)
+        {
+            if (_selectedPoint.Contains(category)) return false;
+            if (_selectedPoint.Select(s => s.Level).Contains(category.Level))
+            {
+                Remove(category.Level ?? 1);
+                _selectedPoint.Add(category);
+            }
+            else _selectedPoint.Add(category);
+        
+            return true;
+        }
+
+        public int Remove(ITILCategory category) =>
+            Remove(category.Level ?? StartLevelDefault);        
+        
+        public int Remove(int level) =>
+            _selectedPoint.RemoveAll(r => r.Level >= level);       
+
+        public IEnumerable<ITILCategory> GetSubLevel()
+        {
+            if (_selectedPoint.Count == 0) return WorkCollection.Where(w => w.Level == StartLevelDefault);            
+            ITILCategory _last = _selectedPoint!.LastOrDefault();
+            
+            if (_last!.SonsCache.Length < 4) return new List<ITILCategory>();
+            
+            var data = JsonSerializer.Deserialize<Dictionary<string, object>>(_last
+                .SonsCache).Skip(1).Select(s => s.Value.ToString());
+        
+            return WorkCollection.Where(w => w.Level == _last.Level + 1 && data.Contains(w.Id.ToString()));
+        }
+
+        public ITILCategoryCreator(IEnumerable<ITILCategory> categories) =>
+            WorkCollection = categories;
+        
+        public override string ToString() =>
+            string.Join(" > ", _selectedPoint.Select(s => s.Name));        
+        
+        public string[] Selected()=>string.Join("\n", _selectedPoint.Select(s =>
+        {
+            if (GetSubLevel()?.Count() > 0) return s.Name + " > ";
+            return s.Name;
+        })).Split("\n");
+        
+        public string[] Position(IEnumerable<ITILCategory> categories) => categories.Select(s =>
+        {
+            if (s.SonsCache.Length < 4) return s.Name;
+            var data = JsonSerializer.Deserialize<Dictionary<string, object>>(s
+                .SonsCache)?.Skip(1).Select(s2 => s2.Value.ToString());
+            if (data?.Count() > 0) return s.Name + " > ";
+            return s.Name;
+            // if (GetSubLevel()?.Count() > 0) return s.Name + " > ";
+            // return s.Name;
+        }).ToArray();
+        
+        // var vats = await ITILCategory.GetEnumerable(client);
+        // ITILCategoryCreator creator = new ITILCategoryCreator(vats);
+        //
+        //     while (true)
+        // {
+        //     if (creator.SelectedPoint().Count() != 0)
+        //         Console.WriteLine("You position: " + string.Join(" ", creator.Selected()));
+        //     ITILCategory[] l1 = creator.GetSubLevel().ToArray();
+        //     string[] p1 = creator.Position(l1);
+        //     if (p1.Length == 0) break;
+        //     Console.WriteLine($"Select point:\n{string.Join("\n", p1)}");
+        //     int val = Convert.ToInt32(Console.ReadLine())-1;
+        //     creator.Append(l1[val]);
+        // }
+        //
+        // Console.WriteLine("You select: " + creator);
     }
 }

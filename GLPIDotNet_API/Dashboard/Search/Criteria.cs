@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using GLPIDotNet_API.Dashboard.Administration;
+using GLPIDotNet_API.Dashboard.Helpdesk;
 
 namespace GLPIDotNet_API.Dashboard.Search
 {
@@ -15,7 +17,7 @@ namespace GLPIDotNet_API.Dashboard.Search
         {
             this.field = field;
             this.meta = meta;
-            this.itemtype = type.Name;
+            itemtype = type.Name;
             this.searchtype = searchtype;
             this.value = value;
         }
@@ -41,18 +43,19 @@ namespace GLPIDotNet_API.Dashboard.Search
             ELink.OR_NOT => "OR NOT",
         };
 
-        public short field { get; } = 0;
-        public bool meta { get; } = false;
-        public string itemtype { get; } = string.Empty;
-        public string link { get; private set; } = string.Empty;
-        public ESeatchType searchtype { get; } 
-        public string value { get; } = string.Empty;
+        public short field { get; set; } = 0;
+        public bool meta { get; set;} = false;
+        public string itemtype { get; set;} = string.Empty;
+        public string link { get;  set; } = string.Empty;
+        public ESeatchType searchtype { get; set;} 
+        public string value { get; set;} = string.Empty;
         public enum ELink
         {
             AND,
             OR,
             AND_NOT,
-            OR_NOT
+            OR_NOT,
+            Continue,
         }
 
         public enum ESeatchType
@@ -88,7 +91,7 @@ namespace GLPIDotNet_API.Dashboard.Search
         /// </summary>
         /// <param name="criterias"></param>
         /// <returns></returns>
-        protected internal static string GetURI(IEnumerable<Criteria> criterias)
+        public static string GetURI(IEnumerable<Criteria> criterias)
         {
             StringBuilder sb = new StringBuilder();
             Criteria[] criteriaArray = criterias.ToArray();
@@ -116,5 +119,52 @@ namespace GLPIDotNet_API.Dashboard.Search
             }
             return sb.ToString();
         }
+
+        /// <summary>
+        ///  Шаблон критейрий поиска по адресу
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="seatchType"></param>
+        /// <param name="isMeta"></param>
+        /// <returns></returns>
+        public static Criteria Default_Address(string value = "", ESeatchType seatchType = ESeatchType.contains,
+            bool isMeta = false, ELink link = ELink.Continue) => link == ELink.Continue
+            ? new(101, isMeta, typeof(Location), seatchType, value)
+            : new Criteria(101, isMeta, typeof(Location), seatchType, link, value);
+
+
+        /// <summary>
+        /// Шаблон критейрий поиска по статусу заявки
+        /// </summary>
+        /// <param name="status"></param>
+        /// <param name="seatchType">For ticket only SeatchType.equals</param>
+        /// <param name="isMeta"></param>
+        /// <param name="link"></param>
+        /// <returns></returns>
+        public static Criteria Default_Status_Ticket(Ticket.EStatus status = Ticket.EStatus.New,
+            ESeatchType seatchType = ESeatchType.equals,
+            bool isMeta = false, ELink link = ELink.Continue) => link == ELink.Continue
+            ? new Criteria(12, isMeta, typeof(Ticket), seatchType, $"{(int)status}")
+            : new Criteria(12, isMeta, typeof(Ticket), seatchType, link, $"{(int)status}");
+
+        /// <summary>
+        /// myself парам не подходит!
+        /// </summary>
+        /// <returns></returns>
+        public static Criteria Delault_Myself_Ticket(long my_id = 748) =>
+            new Criteria(5, false, typeof(Ticket), ESeatchType.equals, $"{my_id}");
+
+        /// <summary>
+        /// Не работает!!!
+        /// </summary>
+        /// <param name="status"></param>
+        /// <returns></returns>
+        public static IEnumerable<Criteria> Delault_Myself_Ticket_Status(long my_id = 748,Ticket.EStatus status = Ticket.EStatus.New) =>
+            new[]
+            {
+                new Criteria(5, false, typeof(Ticket), ESeatchType.equals,$"{my_id}"),
+                new Criteria(12, false, typeof(Ticket), ESeatchType.equals, ELink.AND, ((int)status).ToString())
+            };
+
     }
 }
