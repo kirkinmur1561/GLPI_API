@@ -14,61 +14,24 @@ namespace GLPIDotNet_API.Dashboard.Common
 {
     public abstract class Dashboard<TD>:IDashboard,IComparable<TD> where TD: Dashboard<TD>
     {
-       
         public long? Id { get; set; }
-
-       
-        public long? IdEntities { get; set; }
-
-       
-        public bool? IsRecursive { get; set; }
-
-       
-        public string Name { get; set; }
-
-       
-        public string Comment { get; set; }
-
-       
-        public long? IdLocations { get; set; }
-
-       
-        public long? IdUsersTech { get; set; }
-
-       
-        public long? IdGroupsTech { get; set; }
-
-       
-        public long? IdManufacturers { get; set; }
-
-       
-        public bool? IsDeleted { get; set; }
-
-       
-        public bool? IsTemplate { get; set; }
-
-       
-        public string TemplateName { get; set; }
-
-       
-        public DateTime? DateMod { get; set; }
-
-       
-        public long? IdUsers { get; set; }
-
-       
-        public long? IdGroups { get; set; }
-
-       
-        public double? TicketTco { get; set; }
-
-       
-        public DateTime? DateCreation { get; set; }
-
-       
+        public long? IdEntities { get; set; }       
+        public bool? IsRecursive { get; set; }       
+        public string Name { get; set; }       
+        public string Comment { get; set; }       
+        public long? IdLocations { get; set; }       
+        public long? IdUsersTech { get; set; }       
+        public long? IdGroupsTech { get; set; }       
+        public long? IdManufacturers { get; set; }       
+        public bool? IsDeleted { get; set; }       
+        public bool? IsTemplate { get; set; }       
+        public string TemplateName { get; set; }       
+        public DateTime? DateMod { get; set; }       
+        public long? IdUsers { get; set; }       
+        public long? IdGroups { get; set; }       
+        public double? TicketTco { get; set; }       
+        public DateTime? DateCreation { get; set; }       
         public List<Link> Links { get; set; }
-
-
 
         /// <summary>
         /// Проверка вводных данных
@@ -77,11 +40,11 @@ namespace GLPIDotNet_API.Dashboard.Common
         /// <returns>Если true  есть ошибка;False  иначе </returns>
         protected internal static bool Check(Glpi glpi)
         {
-            bool is_check = glpi?.Client == null ||
+            bool isCheck = glpi?.Client == null ||
                             string.IsNullOrEmpty(glpi.AppToken) ||
                             glpi.Init == null ||
                             string.IsNullOrEmpty(glpi.Init.SessionToken);
-            if (!is_check) return false;
+            if (!isCheck) return false;
             
             throw new ExceptionCheck(glpi);
         }
@@ -93,6 +56,7 @@ namespace GLPIDotNet_API.Dashboard.Common
         /// <param name="glpi">Подключенный объект к GLPI</param>
         /// <param name="parameter">Параметры запроса</param>
         /// <param name="cancel">Принудительная остановка процесса</param>
+        /// <exception cref="ExceptionCheck"></exception>
         /// <exception cref="Exception"></exception>
         public static async Task<string> GetJson(Glpi glpi, Parameter parameter,CancellationToken cancel = default)
         {
@@ -128,6 +92,7 @@ namespace GLPIDotNet_API.Dashboard.Common
         /// <param name="parameter">Параметры поиска</param>
         /// <param name="cancel"></param>
         /// <exception cref="JsonException"></exception>
+        /// <exception cref="ExceptionCheck"></exception>
         /// <exception cref="Exception"></exception>
         public static async Task<TD> GetAsync(Glpi glpi, Parameter parameter,CancellationToken cancel = default)
         {
@@ -151,10 +116,11 @@ namespace GLPIDotNet_API.Dashboard.Common
         /// </summary>
         /// <param name="glpi"></param>
         /// <param name="link">Ex. http://localhost/apirest.php/Ticket/55</param>
-        /// <param name="skip_segment_uri"> Для примера нужно пропустить 2 сегмента. Корень + apirest</param>
+        /// <param name="skipSegmentUri"> Для примера нужно пропустить 2 сегмента. Корень + apirest</param>
         /// <param name="cancel"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
+        /// <exception cref="ExceptionCheck"></exception>
         public static async Task<TD> GetAsync(Glpi glpi,string link,int skipSegmentUri,CancellationToken cancel = default)
         {
             if (Check(glpi)) throw new ExceptionCheck(glpi);
@@ -175,6 +141,7 @@ namespace GLPIDotNet_API.Dashboard.Common
         /// Поиск объектов типа D
         /// </summary>
         /// <exception cref="Exception"></exception>
+        /// <exception cref="ExceptionCheck"></exception>
         public static async Task<ResponseSearch> GetAsync(Glpi glpi,IEnumerable<Criteria> criterias,Parameter parameter = null, CancellationToken cancel = default)
         {
             if (Check(glpi)) throw new ExceptionCheck(glpi);
@@ -277,7 +244,7 @@ namespace GLPIDotNet_API.Dashboard.Common
             else throw new System.Exception("Error in read response (start collection)");
 
             HttpResponseMessage responseEnd = null;
-            Request requestEnd = new Request(async () => await glpi.Client.GetAsync($"{typeof(TD).Name}?{new Parameter() { order = Parameter.EOrder.DESC }}"), a => responseEnd = a);
+            Request requestEnd = new Request(async () => await glpi.Client.GetAsync($"{typeof(TD).Name}?{new Parameter() { order = Parameter.EOrder.DESC }}", cancel), a => responseEnd = a);
             glpi.QueueRequest.Enqueue(requestEnd);
 
             while (responseEnd == null)
@@ -289,13 +256,13 @@ namespace GLPIDotNet_API.Dashboard.Common
                 }
             }
 
-            if (responseEnd.IsSuccessStatusCode) end = JsonConvert.DeserializeObject<List<TD>>(await responseEnd.Content.ReadAsStringAsync());
+            if (responseEnd.IsSuccessStatusCode) end = JsonConvert.DeserializeObject<List<TD>>(await responseEnd.Content.ReadAsStringAsync(cancel));
             else throw new System.Exception("Error in read response (end collection)");
 
             end.Reverse();
 
             HttpResponseMessage responseMiddle = null;
-            Request request = new Request(async () => await glpi.Client.GetAsync($"{typeof(TD).Name}?{new Parameter() { range = new Base.Range(0, end.Last().Id ?? 50) }}"), a => responseMiddle = a);
+            Request request = new Request(async () => await glpi.Client.GetAsync($"{typeof(TD).Name}?{new Parameter() { range = new Base.Range(0, end.Last().Id ?? 50) }}", cancel), a => responseMiddle = a);
             glpi.QueueRequest.Enqueue(request);
 
             while (responseMiddle == null)
@@ -318,6 +285,7 @@ namespace GLPIDotNet_API.Dashboard.Common
         /// добавляет объект D в коллекцию GLPI
         /// </summary>
         /// <exception cref="Exception"></exception>
+        /// <exception cref="ExceptionCheck"></exception>
         public static async Task<IEnumerable<TD>> AddItem(GlpiClient glpi,IEnumerable<TD> ds, CancellationToken cancel = default)
         {
             if (Check(glpi)) throw new ExceptionCheck(glpi);

@@ -32,6 +32,13 @@ namespace GLPIDotNet_API.Dashboard.Assets
         [JsonProperty("tag")]
         public string Tag { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="glpi"></param>
+        /// <param name="cancel"></param>
+        /// <exception cref="ExceptionCheck"></exception>
+        /// <exception cref="Exception"></exception>
         [Obsolete("No correct method!!!")]
         public async Task Download(Glpi glpi,CancellationToken cancel = default)
         {
@@ -72,7 +79,15 @@ namespace GLPIDotNet_API.Dashboard.Assets
             if (response.IsSuccessStatusCode) return;
             else throw new System.Exception($"status code:{response.StatusCode} content:{await response.Content?.ReadAsStringAsync() ?? "*NULL*"}");
         }
-
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="glpi"></param>
+        /// <param name="uri"></param>
+        /// <param name="cancel"></param>
+        /// <exception cref="ExceptionCheck"></exception>
+        /// <exception cref="Exception"></exception>
         [Obsolete]
         public static async Task GetDoc(Glpi glpi, string uri, CancellationToken cancel = default)
         {
@@ -97,12 +112,11 @@ namespace GLPIDotNet_API.Dashboard.Assets
                 {
                     cancel.ThrowIfCancellationRequested();
                 }
-
             }
 
             if (response.IsSuccessStatusCode) return;
             throw new System.Exception(
-                    $"status code:{response.StatusCode} content:{await response.Content?.ReadAsStringAsync(cancel)}");
+                    $"status code:{response.StatusCode} content:{await response.Content.ReadAsStringAsync(cancel)}");
         }
     }
 }

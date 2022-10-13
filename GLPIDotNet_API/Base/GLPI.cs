@@ -22,11 +22,8 @@ namespace GLPIDotNet_API.Base
         public readonly Queue<Request> QueueRequest = new Queue<Request>();
         public readonly CancellationTokenSource Source = new CancellationTokenSource();
 
-        public Glpi()
-        {
-            Motor();
-            
-        }
+        public Glpi() => 
+            Motor();        
 
         /// <summary>
         /// Общий конструктор
@@ -235,8 +232,7 @@ namespace GLPIDotNet_API.Base
         public async void Dispose()
         {
             await KillSession();
-            Client.Dispose();
-            
+            Client.Dispose();            
         }
 
         protected void Motor() => Task.Run(async () =>

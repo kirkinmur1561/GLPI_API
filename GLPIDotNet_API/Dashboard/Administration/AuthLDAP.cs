@@ -1,6 +1,6 @@
 ﻿using GLPIDotNet_API.Dashboard.Common;
-using System ;
-using System.Collections.Generic ;
+using System;
+using System.Collections.Generic;
 
 namespace GLPIDotNet_API.Dashboard.Administration
 {

@@ -113,7 +113,7 @@ namespace GLPIDotNet_API.Base
         public override string ToString() =>
             id != null ?
                 $"/{id}" : 
-                $"{string.Join("&", this.GetType().GetProperties().Where(w => w.GetValue(this) != null).Select(s => $"{s.Name}={s.GetValue(this)?.ToString()?.ToLower()}"))}";
+                $"{string.Join("&", GetType().GetProperties().Where(w => w.GetValue(this) != null).Select(s => $"{s.Name}={s.GetValue(this)?.ToString()?.ToLower()}"))}";
         
 
     }

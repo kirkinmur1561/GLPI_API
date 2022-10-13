@@ -208,7 +208,7 @@ namespace GLPIDotNet_API.Dashboard.Administration
             }
 
             if (response.IsSuccessStatusCode) return;
-            throw new System.Exception($"status code:{response.StatusCode} content:{await response.Content?.ReadAsStringAsync(cancel)}");
+            throw new System.Exception($"status code:{response.StatusCode} content:{await response.Content.ReadAsStringAsync(cancel)}");
         }
 
         

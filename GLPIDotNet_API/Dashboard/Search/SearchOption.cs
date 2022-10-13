@@ -27,6 +27,10 @@ namespace GLPIDotNet_API.Dashboard.Search
         /// <summary>
         /// Критерии поиска по объекту D
         /// </summary>
+        /// <param name="glpi"></param>
+        /// <param name="cancel"></param>
+        /// <returns></returns>
+        /// <exception cref="ExceptionCheck"></exception>
         /// <exception cref="Exception"></exception>
         public static async Task<Dictionary<string, List<SearchOption<TD>>>> GetListSearchOptions(Glpi glpi, CancellationToken cancel = default)
         {

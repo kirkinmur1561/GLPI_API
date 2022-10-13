@@ -16,7 +16,5 @@
         public long End { get; set; }
         public override string ToString() =>
             $"{Start}-{End}";
-        
-
     }
 }

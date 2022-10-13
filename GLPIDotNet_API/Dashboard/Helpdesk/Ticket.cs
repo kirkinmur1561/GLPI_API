@@ -262,7 +262,7 @@ namespace GLPIDotNet_API.Dashboard.Helpdesk
         /// <param name="status"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public string TranlateEStatus(EStatus status) => status switch
+        public virtual string TranlateEStatus(EStatus status) => status switch
         {
             EStatus.New => "Новый",
             EStatus.InWork => "В работе (назначена)",
@@ -279,7 +279,7 @@ namespace GLPIDotNet_API.Dashboard.Helpdesk
         /// <param name="text"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public EStatus ConverterEStatus(string text) => text switch
+        public virtual EStatus ConverterEStatus(string text) => text switch
         {
             "Новый" => EStatus.New,
             "В работе (назначена)" => EStatus.InWork,
