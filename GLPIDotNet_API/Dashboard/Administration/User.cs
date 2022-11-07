@@ -18,22 +18,37 @@ namespace GLPIDotNet_API.Dashboard.Administration
 
         [JsonProperty("password_last_update")]
         public string PasswordLastUpdate { get; set; }
+        
+        /// <summary>
+        /// Первый телефон
+        /// </summary>
         [JsonProperty("phone")]
         public string Phone { get; set; }
+        
+        /// <summary>
+        /// Второй телефон
+        /// </summary>
         [JsonProperty("phone2")]
         public string Phone2 { get; set; }
+        
+        /// <summary>
+        /// Мобильный телефон
+        /// </summary>
         [JsonProperty("mobile")]
         public string Mobile { get; set; }
+        
         /// <summary>
         /// Фамилия
         /// </summary>
         [JsonProperty("realname")]
         public string Realname { get; set; }
+        
         /// <summary>
         /// Имя + Отчество
         /// </summary>
         [JsonProperty("firstname")]
         public string Firstname { get; set; }
+        
         [JsonProperty("language")]
         public string Luse_modeanguage{get;set;}
         [JsonProperty("use_mode")]
@@ -53,10 +68,21 @@ namespace GLPIDotNet_API.Dashboard.Administration
         public DateTime? LastLogi{get;set;}
         [JsonProperty("date_sync")]
         public DateTime? DateSync{get;set;}
+        
+        /// <summary>
+        /// Id Профиль по умолчанию
+        /// </summary>
         [JsonProperty("profiles_id")]
         public long? IdProfiles{get;set;}
+        
+        /// <summary>
+        /// Id Должности
+        /// </summary>
         [JsonProperty("usertitles_id")]
         public long? IdUsertitles{get;set;}
+        /// <summary>
+        /// Id Категории
+        /// </summary>
         [JsonProperty("usercategories_id")]
         public long IdUsercategories{get;set;}
         [JsonProperty("date_format")]
@@ -97,8 +123,13 @@ namespace GLPIDotNet_API.Dashboard.Administration
         public DateTime? PasswordForgetTokenDate{get;set;}
         [JsonProperty("user_dn")]
         public string UserDn{get;set;}
+        
+        /// <summary>
+        /// Административный номер
+        /// </summary>
         [JsonProperty("registration_number")]
         public object RegistrationNumber{get;set;}
+        
         [JsonProperty("show_count_on_tabs")]
         public object ShowCountOnTabs{get;set;}
         [JsonProperty("refresh_views")]
@@ -196,6 +227,32 @@ namespace GLPIDotNet_API.Dashboard.Administration
         public object DefaultCentralTab{get;set;}
         [JsonProperty("nickname")]
         public string Nickname{get;set;}
+        
+        [JsonIgnore]
+        public UserTitle UserTitle { get; set; }
+        
+        [JsonIgnore]
+        public Location Location { get; set; }
+        
+        [JsonIgnore]
+        public AuthLDAP AuthLDAP { get; set; }
+        
+        [JsonIgnore]
+        public UserCategory UserCategory { get; set; }
+        
+        [JsonIgnore]
+        public Entity Entity { get; set; }
+
+        public override async Task LoadFromLins(Glpi glpi, CancellationToken cancel = default)
+        {
+            for (int index = 0; index < Links.Count; index++)
+            {
+                Type t = GetType().GetProperty(Links[index].Rel)?.GetType();
+                if(t == null) continue;
+                
+                
+            }
+        }
 
         /// <summary>
         /// Получить изображение пользователя

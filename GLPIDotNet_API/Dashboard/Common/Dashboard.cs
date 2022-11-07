@@ -61,6 +61,7 @@ namespace GLPIDotNet_API.Dashboard.Common
         public static async Task<string> GetJson(Glpi glpi, Parameter parameter,CancellationToken cancel = default)
         {
             if (Check(glpi)) throw new ExceptionCheck(glpi);
+            await glpi.SetHeaderDefault();
             if (parameter == null) throw new System.Exception("Error parameter.");
 
             HttpResponseMessage response = null;
@@ -97,6 +98,8 @@ namespace GLPIDotNet_API.Dashboard.Common
         public static async Task<TD> GetAsync(Glpi glpi, Parameter parameter,CancellationToken cancel = default)
         {
             if (Check(glpi)) throw new ExceptionCheck(glpi);
+            await glpi.SetHeaderDefault();
+            
             if (parameter?.id is null or < 0) throw new System.Exception("Error parameter.");
             string data = default;
             try
@@ -109,6 +112,15 @@ namespace GLPIDotNet_API.Dashboard.Common
             }           
 
             return JsonConvert.DeserializeObject<TD>(data);
+        }
+
+        public static async Task<string> GetAsync(Glpi glpi, string url, CancellationToken cancel = default)
+        {
+            if (Check(glpi)) throw new ExceptionCheck(glpi);
+            await glpi.SetHeaderDefault();
+            
+            //дописать!
+            return null;
         }
 
         /// <summary>
@@ -124,6 +136,7 @@ namespace GLPIDotNet_API.Dashboard.Common
         public static async Task<TD> GetAsync(Glpi glpi,string link,int skipSegmentUri,CancellationToken cancel = default)
         {
             if (Check(glpi)) throw new ExceptionCheck(glpi);
+            await glpi.SetHeaderDefault();
 
             HttpResponseMessage response = null;
             Request request = new Request(async () => await glpi.Client.GetAsync($"{string.Join("", new Uri(link).Segments.Skip(skipSegmentUri))}"), a => response = a);
@@ -207,6 +220,7 @@ namespace GLPIDotNet_API.Dashboard.Common
         public static async Task<string> GetEnumerableJson(Glpi glpi, CancellationToken cancel = default)
         {
             if (Check(glpi)) throw new ExceptionCheck(glpi);
+            await glpi.SetHeaderDefault();
             return JsonConvert.SerializeObject(await GetEnumerable(glpi, cancel));
         }
 
@@ -286,7 +300,7 @@ namespace GLPIDotNet_API.Dashboard.Common
         /// </summary>
         /// <exception cref="Exception"></exception>
         /// <exception cref="ExceptionCheck"></exception>
-        public static async Task<IEnumerable<TD>> AddItem(GlpiClient glpi,IEnumerable<TD> ds, CancellationToken cancel = default)
+        public static async Task<IEnumerable<TD>> AddItem(Glpi glpi,IEnumerable<TD> ds, CancellationToken cancel = default)
         {
             if (Check(glpi)) throw new ExceptionCheck(glpi);
             await glpi.SetHeaderDefault();
@@ -314,5 +328,17 @@ namespace GLPIDotNet_API.Dashboard.Common
             if (Id < other.Id) return -1;
             return Id > other.Id ? 1 : 0;
         }
+
+        /// <summary>
+        /// Метод загрузки элеметов из объекта Links
+        /// </summary>       
+        public virtual Task LoadFromLins(Glpi glpi, CancellationToken cancel = default)
+        {            
+            return Task.CompletedTask;
+        }
+        
+        
+            
+        
     }
 }
