@@ -24,8 +24,14 @@ namespace GLPIDotNet_API.Dashboard.Administration
         public string Phone2 { get; set; }
         [JsonProperty("mobile")]
         public string Mobile { get; set; }
+        /// <summary>
+        /// Фамилия
+        /// </summary>
         [JsonProperty("realname")]
         public string Realname { get; set; }
+        /// <summary>
+        /// Имя + Отчество
+        /// </summary>
         [JsonProperty("firstname")]
         public string Firstname { get; set; }
         [JsonProperty("language")]
@@ -34,6 +40,9 @@ namespace GLPIDotNet_API.Dashboard.Administration
         public int UseMode{get;set;}
         [JsonProperty("list_limit")]
         public object ListLimit{get;set;}
+        /// <summary>
+        /// Активен ли пользователь
+        /// </summary>
         [JsonProperty("is_active")]
         public bool? IsActive{get;set;}
         [JsonProperty("auths_id")]
@@ -83,7 +92,7 @@ namespace GLPIDotNet_API.Dashboard.Administration
         [JsonProperty("default_requesttypes_id")]
         public long? IdDefaultRequesttypes{get;set;}
         [JsonProperty("password_forget_token")]
-        public string PasswordForgetToken{get;set;}
+        public DateTime? PasswordForgetToken{get;set;}
         [JsonProperty("password_forget_token_date")]
         public DateTime? PasswordForgetTokenDate{get;set;}
         [JsonProperty("user_dn")]
@@ -170,6 +179,9 @@ namespace GLPIDotNet_API.Dashboard.Administration
         public string SyncField{get;set;}
         [JsonProperty("users_id_supervisor")]
         public long? IdUserSupervisor{get;set;}
+        /// <summary>
+        /// Часовой пояс
+        /// </summary>
         [JsonProperty("timezone")]
         public string Timezone{get;set;}
         [JsonProperty("default_dashboard_central")]
