@@ -3,11 +3,16 @@ using GLPIDotNet_API.Dashboard.Search;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using GLPIDotNet_API.Attributes;
+using GLPIDotNet_API.Dashboard.Administration;
 using GLPIDotNet_API.Exception;
 
 namespace GLPIDotNet_API.Dashboard.Common
@@ -113,15 +118,7 @@ namespace GLPIDotNet_API.Dashboard.Common
 
             return JsonConvert.DeserializeObject<TD>(data);
         }
-
-        public static async Task<string> GetAsync(Glpi glpi, string url, CancellationToken cancel = default)
-        {
-            if (Check(glpi)) throw new ExceptionCheck(glpi);
-            await glpi.SetHeaderDefault();
-            
-            //дописать!
-            return null;
-        }
+        
 
         /// <summary>
         /// Получить объект D по ссылке
@@ -332,13 +329,49 @@ namespace GLPIDotNet_API.Dashboard.Common
         /// <summary>
         /// Метод загрузки элеметов из объекта Links
         /// </summary>       
-        public virtual Task LoadFromLins(Glpi glpi, CancellationToken cancel = default)
-        {            
-            return Task.CompletedTask;
-        }
-        
-        
+        public virtual async Task LoadFromLinks(Glpi glpi, CancellationToken cancel = default)
+        {
+            if (Links == null || Links.Count == 0) return;
+
+            if (Check(glpi)) throw new ExceptionCheck(glpi);
+            await glpi.SetHeaderDefault();
+            Request request;
+            HttpResponseMessage responseMiddle = null;
             
-        
+            for (int index = 0; index < Links.Count; index++)
+            {
+                PropertyInfo rel = GetType().GetProperty(Links[index].Rel);//Получаем свойство
+                if(rel == null || rel.GetCustomAttributes(typeof(NoLinkAttribute)).Any()) continue;//Проверка на существование или есть атрибут пропуска загрузки               
+                request = new Request(
+                    async () => await glpi.Client.GetAsync(
+                        string.Join("", Links[index].Address.Segments.Skip(glpi.Client.BaseAddress!.Segments.Length)),
+                        cancel), a => responseMiddle = a); // Создание запроса
+                glpi.QueueRequest.Enqueue(request); // отправка запроса в очерель запросов                
+                
+                while (responseMiddle == null) // ожидание ответа
+                {
+                    if (cancel.IsCancellationRequested)
+                    {
+                        cancel.ThrowIfCancellationRequested();
+                    }
+                }
+
+                if (responseMiddle.IsSuccessStatusCode)
+                {
+                    try
+                    {
+                        // если ответ положительный, то идет запись объекта
+                        rel.SetValue(this, JsonConvert.DeserializeObject(
+                            await responseMiddle.Content.ReadAsStringAsync(cancel),
+                            rel.PropertyType));
+                    }
+                    catch (System.Exception er)
+                    {
+                        Debug.WriteLine($"{er.Message}\n{Links[index].Rel}\n{Links[index].Address}");
+                    }
+                }
+                responseMiddle = null;
+            }           
+        }        
     }
 }

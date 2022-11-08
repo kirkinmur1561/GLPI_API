@@ -5,6 +5,7 @@ using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using GLPIDotNet_API.Attributes;
 using GLPIDotNet_API.Exception;
 
 namespace GLPIDotNet_API.Dashboard.Administration
@@ -55,11 +56,13 @@ namespace GLPIDotNet_API.Dashboard.Administration
         public int UseMode{get;set;}
         [JsonProperty("list_limit")]
         public object ListLimit{get;set;}
+        
         /// <summary>
         /// Активен ли пользователь
         /// </summary>
         [JsonProperty("is_active")]
         public bool? IsActive{get;set;}
+        
         [JsonProperty("auths_id")]
         public long? AuthsId{get;set;}
         [JsonProperty("authtypel")]
@@ -80,11 +83,13 @@ namespace GLPIDotNet_API.Dashboard.Administration
         /// </summary>
         [JsonProperty("usertitles_id")]
         public long? IdUsertitles{get;set;}
+        
         /// <summary>
         /// Id Категории
         /// </summary>
         [JsonProperty("usercategories_id")]
         public long IdUsercategories{get;set;}
+        
         [JsonProperty("date_format")]
         public object DateFormat{get;set;}
         [JsonProperty("number_format")]
@@ -242,17 +247,15 @@ namespace GLPIDotNet_API.Dashboard.Administration
         
         [JsonIgnore]
         public Entity Entity { get; set; }
-
-        public override async Task LoadFromLins(Glpi glpi, CancellationToken cancel = default)
-        {
-            for (int index = 0; index < Links.Count; index++)
-            {
-                Type t = GetType().GetProperty(Links[index].Rel)?.GetType();
-                if(t == null) continue;
-                
-                
-            }
-        }
+        
+        [JsonIgnore]
+        public Profile Profile { get; set; }
+        
+        [JsonIgnore]
+        public Group Group { get; set; }
+        
+        //[JsonIgnore]
+        //public Document_Item Document_Item { get; set; }       
 
         /// <summary>
         /// Получить изображение пользователя

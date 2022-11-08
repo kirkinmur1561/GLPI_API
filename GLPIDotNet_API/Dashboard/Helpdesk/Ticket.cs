@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using GLPIDotNet_API.Attributes;
 using GLPIDotNet_API.Base;
 using GLPIDotNet_API.Dashboard.Administration;
 using GLPIDotNet_API.Dashboard.Common;
@@ -163,87 +164,108 @@ namespace GLPIDotNet_API.Dashboard.Helpdesk
         /// <summary>
         /// User recipient
         /// </summary>
+        [JsonIgnore,NoLink]
+        public User UserRecipient { get;  set; }
+        
         [JsonIgnore]
-        public User UserRecipient { get; private set; }
+        public RequestType RequestType { get;  set; }
+        
         [JsonIgnore]
-        public RequestType RequestType { get; private set; }
+        public ITILCategory ITILCategory { get; set; }
+        
         [JsonIgnore]
-        public ITILCategory ITILCategory { get; private set; }
+        public Location Location { get; set; }
+        
+        // [JsonIgnore]
+        // public DocumentItem Document_Item { get; set; }
+        
         [JsonIgnore]
-        public Location Location { get; private set; }
+        public List<TicketTask> TicketTasks { get;  set;}
+        
         [JsonIgnore]
-        public List<TicketTask> TicketTasks { get;  private set;} = new();
+        public List<TicketValidation> TicketValidation { get;  set;}
+        
         [JsonIgnore]
-        public List<TicketValidation> TicketValidation { get;  private set;} = new();
+        public List<TicketCost> TicketCost { get;  set;}
+        
         [JsonIgnore]
-        public List<TicketCost> TicketCost { get;  private set;} = new();
+        public List<ProblemTicket> Problem_Ticket { get; set; }
+        
         [JsonIgnore]
-        public List<ProblemTicket> Problem_Ticket { get; private set; } = new();
+        public List<ChangeTicket> Change_Ticket { get;  set;}
+        
         [JsonIgnore]
-        public List<ChangeTicket> Change_Ticket { get;  private set;} = new();
-        [JsonIgnore]
-        public List<ItemTicket> Item_Ticket { get;  private set;} = new();
-        [JsonIgnore]
-        public List<ITILSolution> ITILSolution { get;  private set;} = new();
-        [JsonIgnore]
-        public List<ITILFollowup> ITILFollowup { get;  private set;} = new();
-        [JsonIgnore]
-        public List<TicketUser> Ticket_User { get;  private set;} = new();
-        [JsonIgnore]
-        public List<GroupTicket> Group_Ticket { get;  private set;} = new();
-        [JsonIgnore]
-        public List<SupplierTicket> Supplier_Ticket { get;  private set;} = new();
-
+        public List<ItemTicket> Item_Ticket { get;  set;}
+        
         /// <summary>
-        /// Loader other property
+        /// Список сообщений, который оставил под статусом решенных
         /// </summary>
-        /// <param name="glpi"></param>
-        /// <param name="cancel"></param>
-        /// <exception cref="ExceptionCheck"></exception>
-        public async Task Load(Glpi glpi,CancellationToken cancel = default)
-        {
-            if (Check(glpi)) throw new ExceptionCheck(glpi);
-            if (UsersIdRecipient > 0)
-                UserRecipient = await User.GetAsync(glpi, new Parameter() { id = UsersIdRecipient }, cancel);
+        [JsonIgnore]
+        public List<ITILSolution> ITILSolution { get;  set;}
+        
+        [JsonIgnore]
+        public List<ITILFollowup> ITILFollowup { get;  set;}
+        
+        [JsonIgnore]
+        public List<TicketUser> Ticket_User { get;  set;}
+        
+        [JsonIgnore]
+        public List<GroupTicket> Group_Ticket { get;  set;}
+        
+        [JsonIgnore]
+        public List<SupplierTicket> Supplier_Ticket { get;  set;}
+        
 
-            var properties = GetType()
-                .GetProperties()
-                .Where(w =>
-                    w.CustomAttributes
-                        .Select(s => s.AttributeType.Name)
-                        .Contains(nameof(JsonIgnoreAttribute)) &&
-                        w.Name != "UserRecipient" &&
-                        (
-                            w.PropertyType == typeof(long) &&
-                            (long)w.GetValue(this) > 0) ||
-                            w.GetValue(this) != null);
-
-            foreach (var property in properties)
-            {
-                Link linkProperty = Links.FirstOrDefault(f => f.Rel == property.Name);
-                if(linkProperty == null) continue;
-                string endPoint = string.Join("",
-                    linkProperty.Address.Segments.Except(glpi.Client.BaseAddress!.Segments));
-                
-                HttpResponseMessage response = null;
-
-
-                Request request = new Request(async () => await glpi.Client.GetAsync(endPoint, cancel),
-                    a => response = a);
-
-                glpi.QueueRequest.Enqueue(request);
-                
-                while (response == null)
-                {
-                    if(cancel.IsCancellationRequested) cancel.ThrowIfCancellationRequested();
-                }
-
-                if (response.IsSuccessStatusCode) 
-                    property.SetValue(this,
-                                      JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync(cancel),
-                                                                    property.PropertyType));                    
-            }
-        }
+        // /// <summary>
+        // /// Loader other property
+        // /// </summary>
+        // /// <param name="glpi"></param>
+        // /// <param name="cancel"></param>
+        // /// <exception cref="ExceptionCheck"></exception>
+        // public async Task Load(Glpi glpi,CancellationToken cancel = default)
+        // {
+        //     if (Check(glpi)) throw new ExceptionCheck(glpi);
+        //     if (UsersIdRecipient > 0)
+        //         UserRecipient = await User.GetAsync(glpi, new Parameter() { id = UsersIdRecipient }, cancel);
+        //
+        //     var properties = GetType()
+        //         .GetProperties()
+        //         .Where(w =>
+        //             w.CustomAttributes
+        //                 .Select(s => s.AttributeType.Name)
+        //                 .Contains(nameof(JsonIgnoreAttribute)) &&
+        //                 w.Name != "UserRecipient" &&
+        //                 (
+        //                     w.PropertyType == typeof(long) &&
+        //                     (long)w.GetValue(this) > 0) ||
+        //                     w.GetValue(this) != null);
+        //
+        //     foreach (var property in properties)
+        //     {
+        //         Link linkProperty = Links.FirstOrDefault(f => f.Rel == property.Name);
+        //         if(linkProperty == null) continue;
+        //         string endPoint = string.Join("",
+        //             linkProperty.Address.Segments.Except(glpi.Client.BaseAddress!.Segments));
+        //         
+        //         HttpResponseMessage response = null;
+        //
+        //
+        //         Request request = new Request(async () => await glpi.Client.GetAsync(endPoint, cancel),
+        //             a => response = a);
+        //
+        //         glpi.QueueRequest.Enqueue(request);
+        //         
+        //         while (response == null)
+        //         {
+        //             if(cancel.IsCancellationRequested) cancel.ThrowIfCancellationRequested();
+        //         }
+        //
+        //         if (response.IsSuccessStatusCode) 
+        //             property.SetValue(this,
+        //                               JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync(cancel),
+        //                                                             property.PropertyType));                    
+        //     }
+        // }
 
         public enum EStatus
         {
