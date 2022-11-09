@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using GLPIDotNet_API.Dashboard.Administration;
+using GLPIDotNet_API.Dashboard.Assets.LinkComputer;
+using GLPIDotNet_API.Dashboard.Helpdesk.LinkTicket;
 
 namespace GLPIDotNet_API.Dashboard.Assets
 {
@@ -21,6 +24,72 @@ namespace GLPIDotNet_API.Dashboard.Assets
 
         [JsonProperty("uuid")]
         public string UUId { get; set; }
+        
+        [JsonIgnore]
+        public Entity Entity { get; set; }
+        
+        [JsonIgnore]
+        public List<ItemTicket> Item_Ticket {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemProject> Item_Project {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<NetworkPort> NetworkPort {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemDeviceMotherboard> Item_DeviceMotherboard {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemDeviceFirmware> Item_DeviceFirmware {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemDeviceProcessor> Item_DeviceProcessor {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemDeviceMemory> Item_DeviceMemory {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemDeviceHardDrive> Item_DeviceHardDrive {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemDeviceNetworkCard> Item_DeviceNetworkCard {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemDeviceDrive> Item_DeviceDrive {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemDeviceBattery> Item_DeviceBattery {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemDeviceGraphicCard> Item_DeviceGraphicCard {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemDeviceSoundCard> Item_DeviceSoundCard {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemDeviceControl> Item_DeviceControl {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemDevicePCI> Item_DevicePci {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemDeviceCase> Item_DeviceCase {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemDevicePowerSupply> Item_DevicePowerSupply {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemDeviceGeneric> Item_DeviceGeneric {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemDeviceSimcard> Item_DeviceSimcard {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemDeviceSensor> Item_DeviceSensor {get;set;} = new();
+        
+        [JsonIgnore]
+        public List<ItemDeviceCamera> Item_DeviceCamera {get;set;} = new();
 
 
         public override bool Equals(object obj) =>
