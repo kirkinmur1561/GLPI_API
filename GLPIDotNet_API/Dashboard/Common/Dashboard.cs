@@ -222,6 +222,36 @@ namespace GLPIDotNet_API.Dashboard.Common
         }
 
         /// <summary>
+        /// Get date from uri
+        /// </summary>
+        /// <param name="glpi"></param>
+        /// <param name="address"></param>
+        /// <param name="cancel"></param>
+        /// <returns></returns>
+        /// <exception cref="ExceptionCheck"></exception>
+        public static async Task<string> GetJsonFromUri(Glpi glpi, Uri address, CancellationToken cancel = default)
+        {
+            if (Check(glpi)) throw new ExceptionCheck(glpi);
+            await glpi.SetHeaderDefault();
+
+            string endPoint = string.Join("", address.Segments.Skip(glpi.Client.BaseAddress!.Segments.Length));
+
+            HttpResponseMessage rm = null;
+            Request req = new Request(async () => await glpi.Client.GetAsync(endPoint, cancel), r => rm = r);
+            glpi.QueueRequest.Enqueue(req);
+            while (rm == null)
+            {
+                if (cancel.IsCancellationRequested)
+                {
+                    cancel.ThrowIfCancellationRequested();
+                }
+            }
+
+            if (rm.IsSuccessStatusCode) return await rm.Content.ReadAsStringAsync(cancel);
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Получить список объектов D
         /// </summary>
         /// <param name="glpi"></param>

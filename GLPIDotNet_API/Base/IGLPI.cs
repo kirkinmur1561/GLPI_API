@@ -37,6 +37,7 @@ namespace GLPIDotNet_API.Base
         /// </summary>
         HttpClient Client { get; }
 
-        Task<Initialization> Initialization(bool isFullInit, bool isRephresh = default,CancellationToken cancel = default);
+        Task<Initialization> Initialization(bool isFullInit, bool isRephresh = false,
+            CancellationToken cancel = default);
     }
 }
