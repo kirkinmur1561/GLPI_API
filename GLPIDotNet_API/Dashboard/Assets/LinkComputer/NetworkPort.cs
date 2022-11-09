@@ -12,6 +12,9 @@ namespace GLPIDotNet_API.Dashboard.Assets.LinkComputer
         [JsonProperty("itemtype")]
         public string TypeItem {get; set;}            
         
+        /// <summary>
+        /// Port number
+        /// </summary>
         [JsonProperty("logical_number")]
         public long? LogicalNum {get; set;}        
         

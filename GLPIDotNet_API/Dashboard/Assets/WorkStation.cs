@@ -1,4 +1,6 @@
-﻿using GLPIDotNet_API.Dashboard.Common;
+﻿using System.Text.Json.Serialization;
+using GLPIDotNet_API.Dashboard.Common;
+using GLPIDotNet_API.Dashboard.Common.LinkCommon;
 using Newtonsoft.Json;
 
 namespace GLPIDotNet_API.Dashboard.Assets
@@ -22,5 +24,11 @@ namespace GLPIDotNet_API.Dashboard.Assets
 
         [JsonProperty("is_dynamic")]
         public bool? IsDynamic { get; set; }
+        
+        [System.Text.Json.Serialization.JsonIgnore]
+        public State State { get; set; }
+        
+        [System.Text.Json.Serialization.JsonIgnore]
+        public Network Network {get;set;}
     }
 }
