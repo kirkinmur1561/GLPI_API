@@ -356,26 +356,54 @@ namespace GLPIDotNet_API.Dashboard.Common
             return Id > other.Id ? 1 : 0;
         }
 
+        
+        
         /// <summary>
         /// Метод загрузки элеметов из объекта Links
-        /// </summary>       
-        public virtual async Task LoadFromLinks(Glpi glpi, CancellationToken cancel = default)
+        /// </summary>
+        /// <param name="glpi">авторизированный пользователь</param>
+        /// <param name="isIgnoreProperties">Если false = список типов используется как белый список,если true список используется как черный спиок</param>
+        /// <param name="properties">Список черных/белых типов</param>
+        /// <param name="cancel"></param>
+        /// <exception cref="ExceptionCheck"></exception>
+        public virtual async Task LoadFromLinkAsync(
+            Glpi glpi, 
+            IEnumerable<PropertyInfo> properties = null,
+            bool? isIgnoreProperties = null,            
+            CancellationToken cancel = default)
         {
             if (Links == null || Links.Count == 0) return;
 
             if (Check(glpi)) throw new ExceptionCheck(glpi);
             await glpi.SetHeaderDefault();
-            Request request;
             HttpResponseMessage responseMiddle = null;
+
+            IEnumerable<string>
+                appendIgnore = //свойсва, которые будут игнорироваться по умолчанию через атрибут NoLinkAttribute
+                    GetType().GetProperties()
+                        .Where(w => w.GetCustomAttributes(true).Contains(typeof(NoLinkAttribute)))
+                        .Select(s => s.Name.ToLower());            
+
+            IEnumerable<string> propertiesStr =
+                properties != null ? properties.Select(s => s.Name.ToLower()) : Array.Empty<string>();//строковое предстваления свойства
             
-            for (int index = 0; index < Links.Count; index++)
+            IEnumerable<Link> links;
+            
+            if (isIgnoreProperties == true)
+                links = Links.Where(w =>!appendIgnore.Contains(w.Rel) && !propertiesStr.Contains(w.Rel.ToLower()));
+            else if (isIgnoreProperties == false)
+                links = Links.Where(w => !appendIgnore.Contains(w.Rel) && propertiesStr.Contains(w.Rel.ToLower()));
+            else links = Links.Where(w => !appendIgnore.Contains(w.Rel));
+            
+            foreach (Link link in links)
             {
-                PropertyInfo rel = GetType().GetProperty(Links[index].Rel);//Получаем свойство
+                PropertyInfo rel = GetType().GetProperty(link.Rel);//Получаем свойство
                 if(rel == null || rel.GetCustomAttributes(typeof(NoLinkAttribute)).Any()) continue;//Проверка на существование или есть атрибут пропуска загрузки               
-                request = new Request(
+                var request = new Request(
                     async () => await glpi.Client.GetAsync(
-                        string.Join("", Links[index].Address.Segments.Skip(glpi.Client.BaseAddress!.Segments.Length)),
-                        cancel), a => responseMiddle = a); // Создание запроса
+                        string.Join("", link.Address.Segments.Skip(glpi.Client.BaseAddress!.Segments.Length)),
+                        cancel), a => responseMiddle = a);
+                
                 glpi.QueueRequest.Enqueue(request); // отправка запроса в очерель запросов                
                 
                 while (responseMiddle == null) // ожидание ответа
@@ -397,11 +425,17 @@ namespace GLPIDotNet_API.Dashboard.Common
                     }
                     catch (System.Exception er)
                     {
-                        Debug.WriteLine($"{er.Message}\n{Links[index].Rel}\n{Links[index].Address}");
+                        Debug.WriteLine($"{er.Message}\n{link.Rel}\n{link.Address}");
                     }
                 }
                 responseMiddle = null;
             }           
-        }        
+        }
+
+        // public virtual async Task LoadFromLinkWithWhiteListAsync(Glpi glpi,
+        //     IEnumerable<Type> requiredProperties = default, CancellationToken cancel = default)
+        // {
+        //     
+        // }
     }
 }

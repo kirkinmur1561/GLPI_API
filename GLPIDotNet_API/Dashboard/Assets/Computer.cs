@@ -1,6 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿#nullable enable
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using GLPIDotNet_API.Base;
 using GLPIDotNet_API.Dashboard.Administration;
 using GLPIDotNet_API.Dashboard.Assets.LinkComputer;
 using GLPIDotNet_API.Dashboard.Helpdesk.LinkTicket;
@@ -119,8 +125,10 @@ namespace GLPIDotNet_API.Dashboard.Assets
         public Group Group {get;set;}
         
         [JsonIgnore]
-        public Location Location {get;set;}        
+        public Location Location {get;set;}
 
+        [JsonIgnore] 
+        public List<NetWorkName> NetworkNames { get; set; } = new();        
 
         public override bool Equals(object obj)
         {
@@ -135,6 +143,33 @@ namespace GLPIDotNet_API.Dashboard.Assets
 
         public static bool operator !=(Computer left, Computer right) =>
             !(left == right);
+
+       
+        public override async Task LoadFromLinkAsync(Glpi glpi, IEnumerable<PropertyInfo> properties = null, bool? isIgnoreProperties = null,
+            CancellationToken cancel = default)
+        {
+            await base.LoadFromLinkAsync(glpi, properties, isIgnoreProperties, cancel);
+            
+            if (NetworkPort.Count > 0)
+            {
+                foreach (var networkPort in NetworkPort)
+                {
+
+                    NetWorkName? nwn = JsonConvert.DeserializeObject<NetWorkName>(
+                        await GetJsonFromUri(glpi,
+                            new Uri($"{glpi.Client.BaseAddress}NetworkName/{networkPort.Id}"), cancel));
+
+                    if (nwn == null) continue;
+                    IpAddress? ipAddress = JsonConvert.DeserializeObject<IpAddress>(
+                        await GetJsonFromUri(glpi,
+                            new Uri($"{glpi.Client.BaseAddress}NetworkName/{networkPort.Id}/IPAddress"), cancel));
+                        
+                    if (ipAddress != null) nwn.IpAddress = ipAddress;
+                    NetworkNames.Add(nwn);
+                }
+            } 
+        }
+
 
         public bool Equals(Computer other)
         {
