@@ -2,7 +2,7 @@ using GLPIDotNet_API.Dashboard.Common;
 
 namespace GLPIDotNet_API.Dashboard.Assets.LinkComputer
 {
-    public class ItemDeviceDrive:Dashboard<ItemDeviceDrive>
+    public class Item_DevicePci:Dashboard<Item_DevicePci>
     {
         
     }

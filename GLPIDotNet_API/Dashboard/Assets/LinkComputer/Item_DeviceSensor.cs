@@ -2,7 +2,7 @@ using GLPIDotNet_API.Dashboard.Common;
 
 namespace GLPIDotNet_API.Dashboard.Assets.LinkComputer
 {
-    public class ItemDeviceMemory:Dashboard<ItemDeviceMemory>
+    public class Item_DeviceSensor:Dashboard<Item_DeviceSensor>
     {
         
     }

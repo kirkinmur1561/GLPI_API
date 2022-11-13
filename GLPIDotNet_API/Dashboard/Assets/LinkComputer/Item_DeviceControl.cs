@@ -2,7 +2,7 @@ using GLPIDotNet_API.Dashboard.Common;
 
 namespace GLPIDotNet_API.Dashboard.Assets.LinkComputer
 {
-    public class ItemDeviceSimcard:Dashboard<ItemDeviceSimcard>
+    public class Item_DeviceControl:Dashboard<Item_DeviceControl>
     {
         
     }

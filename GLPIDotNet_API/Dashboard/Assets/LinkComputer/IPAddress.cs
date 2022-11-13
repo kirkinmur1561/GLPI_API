@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace GLPIDotNet_API.Dashboard.Assets.LinkComputer
 {
-    public class IpAddress:Dashboard<IpAddress>
+    public class IPAddress:Dashboard<IPAddress>
     {
         public enum EipVersion
         {

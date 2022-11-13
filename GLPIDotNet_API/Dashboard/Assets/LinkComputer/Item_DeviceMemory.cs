@@ -2,7 +2,7 @@ using GLPIDotNet_API.Dashboard.Common;
 
 namespace GLPIDotNet_API.Dashboard.Assets.LinkComputer
 {
-    public class ItemDeviceSoundCard:Dashboard<ItemDeviceSoundCard>
+    public class Item_DeviceMemory:Dashboard<Item_DeviceMemory>
     {
         
     }

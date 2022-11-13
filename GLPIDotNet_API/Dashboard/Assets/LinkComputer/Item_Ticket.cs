@@ -2,7 +2,7 @@ using GLPIDotNet_API.Dashboard.Common;
 
 namespace GLPIDotNet_API.Dashboard.Assets.LinkComputer
 {
-    public class ItemProject:Dashboard<ItemProject>
+    public class Item_Ticket:Dashboard<Item_Ticket>
     {
         
     }

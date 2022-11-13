@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading;
@@ -10,6 +11,7 @@ using GLPIDotNet_API.Base;
 using GLPIDotNet_API.Dashboard.Administration;
 using GLPIDotNet_API.Dashboard.Assets.LinkComputer;
 using GLPIDotNet_API.Dashboard.Helpdesk.LinkTicket;
+using IPAddress = GLPIDotNet_API.Dashboard.Assets.LinkComputer.IPAddress;
 
 namespace GLPIDotNet_API.Dashboard.Assets
 {
@@ -35,70 +37,73 @@ namespace GLPIDotNet_API.Dashboard.Assets
         public Entity Entity { get; set; }
         
         [JsonIgnore]
+        public Network Network { get; set; }        
+        
+        [JsonIgnore]
         public List<ItemTicket> Item_Ticket {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemProject> Item_Project {get;set;} = new();
+        public List<Item_Project> Item_Project {get;set;} = new();
         
         [JsonIgnore]
         public List<NetworkPort> NetworkPort {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemDeviceMotherboard> Item_DeviceMotherboard {get;set;} = new();
+        public List<Item_DeviceMotherboard> Item_DeviceMotherboard {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemDeviceFirmware> Item_DeviceFirmware {get;set;} = new();
+        public List<Item_DeviceFirmware> Item_DeviceFirmware {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemDeviceProcessor> Item_DeviceProcessor {get;set;} = new();
+        public List<Item_DeviceProcessor> Item_DeviceProcessor {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemDeviceMemory> Item_DeviceMemory {get;set;} = new();
+        public List<Item_DeviceMemory> Item_DeviceMemory {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemDeviceHardDrive> Item_DeviceHardDrive {get;set;} = new();
+        public List<Item_DeviceHardDrive> Item_DeviceHardDrive {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemDeviceNetworkCard> Item_DeviceNetworkCard {get;set;} = new();
+        public List<Item_DeviceNetworkCard> Item_DeviceNetworkCard {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemDeviceDrive> Item_DeviceDrive {get;set;} = new();
+        public List<Item_DeviceDrive> Item_DeviceDrive {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemDeviceBattery> Item_DeviceBattery {get;set;} = new();
+        public List<Item_DeviceBattery> Item_DeviceBattery {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemDeviceGraphicCard> Item_DeviceGraphicCard {get;set;} = new();
+        public List<Item_DeviceGraphicCard> Item_DeviceGraphicCard {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemDeviceSoundCard> Item_DeviceSoundCard {get;set;} = new();
+        public List<Item_DeviceSoundCard> Item_DeviceSoundCard {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemDeviceControl> Item_DeviceControl {get;set;} = new();
+        public List<Item_DeviceControl> Item_DeviceControl {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemDevicePCI> Item_DevicePci {get;set;} = new();
+        public List<Item_DevicePci> Item_DevicePci {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemDeviceCase> Item_DeviceCase {get;set;} = new();
+        public List<Item_DeviceCase> Item_DeviceCase {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemDevicePowerSupply> Item_DevicePowerSupply {get;set;} = new();
+        public List<Item_DevicePowerSupply> Item_DevicePowerSupply {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemDeviceGeneric> Item_DeviceGeneric {get;set;} = new();
+        public List<Item_DeviceGeneric> Item_DeviceGeneric {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemDeviceSimcard> Item_DeviceSimcard {get;set;} = new();
+        public List<Item_DeviceSimcard> Item_DeviceSimcard {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemDeviceSensor> Item_DeviceSensor {get;set;} = new();
+        public List<Item_DeviceSensor> Item_DeviceSensor {get;set;} = new();
         
         [JsonIgnore]
-        public List<ItemDeviceCamera> Item_DeviceCamera {get;set;} = new();
+        public List<Item_DeviceCamera> Item_DeviceCamera {get;set;} = new();
 
         [JsonIgnore] 
-        public List<ItemContract> Contract_Item { get; set; } = new();        
+        public List<Contract_Item> Contract_Item { get; set; } = new();        
         
         [JsonIgnore]
         public AutoUpdateSystem AutoUpdateSystem {get;set;}
@@ -128,7 +133,7 @@ namespace GLPIDotNet_API.Dashboard.Assets
         public Location Location {get;set;}
 
         [JsonIgnore] 
-        public List<NetWorkName> NetworkNames { get; set; } = new();        
+        public List<NetworkName> NetworkNames { get; set; } = new();        
 
         public override bool Equals(object obj)
         {
@@ -150,22 +155,27 @@ namespace GLPIDotNet_API.Dashboard.Assets
         {
             await base.LoadFromLinkAsync(glpi, properties, isIgnoreProperties, cancel);
             
-            if (NetworkPort.Count > 0)
+            if (NetworkPort.Any())
             {
-                foreach (var networkPort in NetworkPort)
+                for (var indexPort = 0; indexPort < NetworkPort.Count; indexPort++)
                 {
+                    var networkPort = NetworkPort[indexPort];
+                    List<NetworkName>? newNames =
+                        JsonConvert.DeserializeObject<List<NetworkName>>(
+                            await GetJsonFromUri(glpi,
+                                new Uri($"{glpi.Client.BaseAddress}NetworkPort/{networkPort.Id}/NetworkName"), cancel));
 
-                    NetWorkName? nwn = JsonConvert.DeserializeObject<NetWorkName>(
-                        await GetJsonFromUri(glpi,
-                            new Uri($"{glpi.Client.BaseAddress}NetworkName/{networkPort.Id}"), cancel));
-
-                    if (nwn == null) continue;
-                    IpAddress? ipAddress = JsonConvert.DeserializeObject<IpAddress>(
-                        await GetJsonFromUri(glpi,
-                            new Uri($"{glpi.Client.BaseAddress}NetworkName/{networkPort.Id}/IPAddress"), cancel));
-                        
-                    if (ipAddress != null) nwn.IpAddress = ipAddress;
-                    NetworkNames.Add(nwn);
+                    if (newNames == null) continue;
+                    for (var indexName = 0; indexName < newNames.Count; indexName++)
+                    {
+                        var networkName = newNames[indexName];
+                        networkName.IpAddress =
+                            JsonConvert.DeserializeObject<IEnumerable<IPAddress>>(
+                                await GetJsonFromUri(glpi,
+                                    new Uri($"{glpi.Client.BaseAddress}NetworkName/{networkName.Id}/IPAddress"),
+                                    cancel));
+                        networkPort.ListNetworkNames.Add(networkName);
+                    }
                 }
             } 
         }

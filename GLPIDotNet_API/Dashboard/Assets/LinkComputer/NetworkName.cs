@@ -4,9 +4,9 @@ using Newtonsoft.Json;
 
 namespace GLPIDotNet_API.Dashboard.Assets.LinkComputer
 {
-    public class NetWorkName:Dashboard<NetWorkName>
+    public class NetworkName:Dashboard<NetworkName>
     {
         [JsonIgnore]
-        public IpAddress IpAddress { get; set; }
+        public IEnumerable<IPAddress> IpAddress { get; set; }
     }
 }
