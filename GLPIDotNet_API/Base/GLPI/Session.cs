@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GLPIDotNet_API.Base
+namespace GLPIDotNet_API.Base.GLPI
 {
     public class Session
     {

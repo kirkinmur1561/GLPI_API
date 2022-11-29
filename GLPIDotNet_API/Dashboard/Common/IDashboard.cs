@@ -1,17 +1,27 @@
-﻿using GLPIDotNet_API.Base;
+﻿using GLPIDotNet_API.Attributes;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using GLPIDotNet_API.Base.GLPI;
+using GLPIDotNet_API.Base.Request;
+using GLPIDotNet_API.Dashboard.Administration;
+using GLPIDotNet_API.Dashboard.Administration.User;
+using GLPIDotNet_API.Dashboard.Assets.LinkComputer;
+using GLPIDotNet_API.Exception;
 
 namespace GLPIDotNet_API.Dashboard.Common
 {
-    public interface IDashboard
-    {
+    public interface IDashboard:IEquatable<IDashboard>
+    {        
         [JsonProperty("id")]
         long? Id { get; set; }
 
         [JsonProperty("entities_id")]
-        long? IdEntities { get; set; }
+        long? IdEntity { get; set; }
 
         [JsonProperty("is_recursive")]
         bool? IsRecursive { get; set; }
@@ -23,7 +33,7 @@ namespace GLPIDotNet_API.Dashboard.Common
         string Comment { get; set; }
 
         [JsonProperty("locations_id")]
-        long? IdLocations { get; set; }
+        long? IdLocation { get; set; }
 
         [JsonProperty("users_id_tech")]
         long? IdUsersTech { get; set; }
@@ -32,7 +42,7 @@ namespace GLPIDotNet_API.Dashboard.Common
         long? IdGroupsTech { get; set; }
 
         [JsonProperty("manufacturers_id")]
-        long? IdManufacturers { get; set; }
+        long? IdManufacturer { get; set; }
 
         [JsonProperty("is_deleted")]
         bool? IsDeleted { get; set; }
@@ -47,10 +57,10 @@ namespace GLPIDotNet_API.Dashboard.Common
         DateTime? DateMod { get; set; }
 
         [JsonProperty("users_id")]
-        long? IdUsers { get; set; }
+        long? IdUser { get; set; }
 
         [JsonProperty("groups_id")]
-        long? IdGroups { get; set; }
+        long? IdGroup { get; set; }
 
         [JsonProperty("ticket_tco")]
         double? TicketTco { get; set; }
@@ -60,6 +70,28 @@ namespace GLPIDotNet_API.Dashboard.Common
 
         [JsonProperty("links")]
         List<Link> Links { get; set; }
-       
+        
+        [JsonIgnore]
+        User User { get; set; }
+        
+        [JsonIgnore]
+        Group Group { get; set; }
+        
+        [JsonIgnore]
+        Manufacturer Manufacturer { get; set; }
+        
+        [JsonIgnore]
+        Location Location { get; set; }
+        
+        [JsonIgnore]
+        Entity Entity { get; set; }        
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        [JsonIgnore]
+        Dictionary<string,object> ChangeProperty { get; }
+
+        
     }
 }

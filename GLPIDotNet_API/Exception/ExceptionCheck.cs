@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using GLPIDotNet_API.Base;
+using GLPIDotNet_API.Base.GLPI;
 
 namespace GLPIDotNet_API.Exception
 {
@@ -9,8 +10,8 @@ namespace GLPIDotNet_API.Exception
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="_glpi"></param>
-        public ExceptionCheck(IGlpi _glpi):base("Error in object. Check source property.")
+        /// <param name="glpiClientaram>
+        public ExceptionCheck(IGlpi glpiClient):base("Error in object. Check source property.")
         {
             var textError = new[]
             {
@@ -22,17 +23,17 @@ namespace GLPIDotNet_API.Exception
             };
             Uri uri;
             StringBuilder sbError = new StringBuilder("Check GLPI object. ");
-            if (_glpi.Client != null)
+            if (glpiClient.Client != null)
             {
-                if (!Uri.TryCreate(_glpi.Client?.BaseAddress?.ToString(), UriKind.Absolute, out uri))
+                if (!Uri.TryCreate(glpiClient.Client?.BaseAddress?.ToString(), UriKind.Absolute, out uri))
                     sbError.Append(textError[4]);
             }
             else
                 sbError.Append(textError[0]);
 
-            if (string.IsNullOrEmpty(_glpi.AppToken)) sbError.Append(textError[1]);
-            if (_glpi.Init == null) sbError.Append(textError[2]);
-            if (string.IsNullOrEmpty(_glpi.Init?.SessionToken)) sbError.Append(textError[3]);
+            if (string.IsNullOrEmpty(glpiClient.AppToken)) sbError.Append(textError[1]);
+            if (glpiClient.Init == null) sbError.Append(textError[2]);
+            if (string.IsNullOrEmpty(glpiClient.Init?.SessionToken)) sbError.Append(textError[3]);
            
             Source =  sbError.ToString();
         }

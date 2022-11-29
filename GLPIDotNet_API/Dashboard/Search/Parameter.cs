@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-namespace GLPIDotNet_API.Base
+namespace GLPIDotNet_API.Dashboard.Search
 {
     public class Parameter
     {

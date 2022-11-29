@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using GLPIDotNet_API.Base;
+using GLPIDotNet_API.Dashboard.Common;
 using Newtonsoft.Json;
 
 namespace GLPIDotNet_API.Dashboard.Helpdesk.LinkTicket

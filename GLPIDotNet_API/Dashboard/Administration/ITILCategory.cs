@@ -67,19 +67,19 @@ namespace GLPIDotNet_API.Dashboard.Administration
         {
             HashCode hash = new HashCode();
             hash.Add(Id);
-            hash.Add(IdEntities);
+            hash.Add(IdEntity);
             hash.Add(IsRecursive);
             hash.Add(Name);
             hash.Add(Comment);
-            hash.Add(IdLocations);
+            hash.Add(IdLocation);
             hash.Add(IdUsersTech);
             hash.Add(IdGroupsTech);
-            hash.Add(IdManufacturers);
+            hash.Add(IdManufacturer);
             hash.Add(IsDeleted);
             hash.Add(IsTemplate);
             hash.Add(TemplateName);
             hash.Add(DateMod);
-            hash.Add(IdUsers);
+            hash.Add(IdUser);
             hash.Add(TicketTco);
             hash.Add(DateCreation);
             hash.Add(IdItilCategory);

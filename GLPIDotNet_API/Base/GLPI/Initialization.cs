@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace GLPIDotNet_API.Base
+namespace GLPIDotNet_API.Base.GLPI
 {
     public class Initialization
     {

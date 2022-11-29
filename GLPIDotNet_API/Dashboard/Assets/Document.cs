@@ -1,11 +1,12 @@
-﻿using GLPIDotNet_API.Base;
-using System;
+﻿using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
+using GLPIDotNet_API.Base.GLPI;
+using GLPIDotNet_API.Base.Request;
 using GLPIDotNet_API.Dashboard.Common;
 using GLPIDotNet_API.Exception;
 
@@ -35,88 +36,90 @@ namespace GLPIDotNet_API.Dashboard.Assets
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="glpi"></param>
+        /// <param name="glpiClient"></param>
         /// <param name="cancel"></param>
         /// <exception cref="ExceptionCheck"></exception>
         /// <exception cref="Exception"></exception>
-        [Obsolete("No correct method!!!")]
-        public async Task Download(Glpi glpi,CancellationToken cancel = default)
-        {
-            if (Check(glpi)) throw new ExceptionCheck(glpi);
-
-            HttpResponseMessage response = null;
-
-            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, "Document");
-            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/octet-stream"));
-            requestMessage.Headers.Add("Session-Token", glpi.Init.SessionToken);
-            requestMessage.Headers.Add("app_token", glpi.AppToken);
-            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            requestMessage.Content = new StringContent(JsonConvert.SerializeObject(new { input = new { id = this.Id } }), Encoding.UTF8, "application/json");
-
-            var r = await glpi.Client.SendAsync(requestMessage, cancel);
-
-            Request request = new Request
-            (async () => 
-            {
-                
-                return null;
-
-
-            },
-            w => 
-            response = w);
-
-            glpi.QueueRequest.Enqueue(request);
-
-            while (response == null)
-            {
-                if (cancel.IsCancellationRequested)
-                {
-                    cancel.ThrowIfCancellationRequested();
-                }
-
-            }
-            if (response.IsSuccessStatusCode) return;
-            else throw new System.Exception($"status code:{response.StatusCode} content:{await response.Content?.ReadAsStringAsync() ?? "*NULL*"}");
-        }
+        //[Obsolete("No correct method!!!")]
+        // public async Task Download(IGlpiClient glpiClient,CancellationToken cancel = default)
+        // {
+        //     if (glpiClient.Checker()) throw new ExceptionCheck(glpiClient);
+        //
+        //     HttpResponseMessage response = null;
+        //
+        //     HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, "Document");
+        //     requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/octet-stream"));
+        //     requestMessage.Headers.Add("Session-Token", glpiClient.Init.SessionToken);
+        //     requestMessage.Headers.Add("app_token", glpiClient.AppToken);
+        //     requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        //     requestMessage.Content = new StringContent(JsonConvert.SerializeObject(new { input = new { id = Id } }), Encoding.UTF8, "application/json");
+        //
+        //     var r = await glpiClient.Client.SendAsync(requestMessage, cancel);
+        //
+        //     ClientRequest clientRequest = new ClientRequest
+        //     (async () => 
+        //     {
+        //         
+        //         return null;
+        //
+        //
+        //     },
+        //     w => 
+        //     response = w);
+        //
+        //     glpiClient.QueueRequest.Enqueue(clientRequest);
+        //
+        //     while (response == null)
+        //     {
+        //         if (cancel.IsCancellationRequested)
+        //         {
+        //             cancel.ThrowIfCancellationRequested();
+        //         }
+        //
+        //     }
+        //     if (response.IsSuccessStatusCode) return;
+        //     throw new System.Exception(
+        //         $"status code:{response.StatusCode} content:{await response.Content.ReadAsStringAsync(cancel)}");
+        // }
+        
         
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="glpi"></param>
+        /// <param name="glpiClient"></param>
         /// <param name="uri"></param>
         /// <param name="cancel"></param>
         /// <exception cref="ExceptionCheck"></exception>
         /// <exception cref="Exception"></exception>
-        [Obsolete]
-        public static async Task GetDoc(Glpi glpi, string uri, CancellationToken cancel = default)
-        {
-            Uri result;
-            if (Check(glpi))
-                throw new ExceptionCheck(glpi);
-
-            if (string.IsNullOrEmpty(uri)) throw new System.Exception("URI is null or empty");
-            if (!Uri.TryCreate(uri, UriKind.Absolute, out result)) throw new System.Exception("Error create URI.");
-           
-
-            HttpResponseMessage response = null;
-            Request request = new Request
-            (() => glpi.Client.GetAsync(result,cancel),
-            w => response = w);
-
-            glpi.QueueRequest.Enqueue(request);
-
-            while (response == null)
-            {
-                if (cancel.IsCancellationRequested)
-                {
-                    cancel.ThrowIfCancellationRequested();
-                }
-            }
-
-            if (response.IsSuccessStatusCode) return;
-            throw new System.Exception(
-                    $"status code:{response.StatusCode} content:{await response.Content.ReadAsStringAsync(cancel)}");
-        }
+        // [Obsolete]
+        // public static async Task GetDoc(IGlpiClient glpiClient, string uri, CancellationToken cancel = default)
+        // {
+        //     Uri result;
+        //     if (glpiClient.Checker())
+        //         throw new ExceptionCheck(glpiClient);
+        //
+        //     if (string.IsNullOrEmpty(uri)) throw new System.Exception("URI is null or empty");
+        //     if (!Uri.TryCreate(uri, UriKind.Absolute, out result)) throw new System.Exception("Error create URI.");
+        //    
+        //
+        //     HttpResponseMessage response = null;
+        //     ClientRequest clientRequest = new ClientRequest
+        //     (() => glpiClient.Client.GetAsync(result,cancel),
+        //     w => response = w);
+        //
+        //     glpiClient.QueueRequest.Enqueue(clientRequest);
+        //
+        //     while (response == null)
+        //     {
+        //         if (cancel.IsCancellationRequested)
+        //         {
+        //             cancel.ThrowIfCancellationRequested();
+        //         }
+        //     }
+        //
+        //     if (response.IsSuccessStatusCode) return;
+        //     throw new System.Exception(
+        //             $"status code:{response.StatusCode} content:{await response.Content.ReadAsStringAsync(cancel)}");
+        // }
     }
 }

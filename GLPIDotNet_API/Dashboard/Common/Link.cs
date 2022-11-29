@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace GLPIDotNet_API.Base
+namespace GLPIDotNet_API.Dashboard.Common
 {
     public class Link : IEquatable<Link>
     {

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace GLPIDotNet_API.Dashboard.Administration
 {
@@ -12,20 +13,48 @@ namespace GLPIDotNet_API.Dashboard.Administration
         {
 
         }
-        public string completename { get; set; }
-        public int level { get; set; }
-        public string ancestors_cache { get; set; }
-        public string sons_cache { get; set; }
-        public string address { get; set; }
-        public string postcode { get; set; }
-        public string town { get; set; }
-        public string state { get; set; }
-        public string country { get; set; }
-        public string building { get; set; }
-        public string room { get; set; }
-        public string latitude { get; set; }
-        public string longitude { get; set; }
-        public object altitude { get; set; }
+        
+        [JsonProperty("completename")]
+        public string CompleteName { get; set; }
+        
+        [JsonProperty("level")]
+        public int Level { get; set; }
+        
+        [JsonProperty("ancestors_cache")]
+        public string CacheAncestors { get; set; }
+        
+        [JsonProperty("sons_cache")]
+        public string CacheSons { get; set; }
+        
+        [JsonProperty("address")]
+        public string Address { get; set; }
+        
+        [JsonProperty("postcode")]
+        public string Postcode { get; set; }
+        
+        [JsonProperty("town")]
+        public string Town { get; set; }
+        
+        [JsonProperty("state")]
+        public string State { get; set; }
+        
+        [JsonProperty("country")]
+        public string Country { get; set; }
+        
+        [JsonProperty("building")]
+        public string Building { get; set; }
+        
+        [JsonProperty("room")]
+        public string Room { get; set; }
+        
+        [JsonProperty("latitude")]
+        public string Latitude { get; set; }
+        
+        [JsonProperty("longitude")]
+        public string Longitude { get; set; }
+        
+        [JsonProperty("altitude")]
+        public object Altitude { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -36,35 +65,35 @@ namespace GLPIDotNet_API.Dashboard.Administration
         {
             return other != null &&
                    Id == other.Id &&
-                   IdEntities == other.IdEntities &&
+                   IdEntity == other.IdEntity &&
                    IsRecursive == other.IsRecursive &&
                    Name == other.Name &&
                    Comment == other.Comment &&
-                   IdLocations == other.IdLocations &&
+                   IdLocation == other.IdLocation &&
                    IdUsersTech == other.IdUsersTech &&
                    IdGroupsTech == other.IdGroupsTech &&
-                   IdManufacturers == other.IdManufacturers &&
+                   IdManufacturer == other.IdManufacturer &&
                    IsDeleted == other.IsDeleted &&
                    IsTemplate == other.IsTemplate &&
                    TemplateName == other.TemplateName &&
                    DateMod == other.DateMod &&
-                   IdUsers == other.IdUsers &&
-                   IdGroups == other.IdGroups &&
+                   IdUser == other.IdUser &&
+                   IdGroup == other.IdGroup &&
                    TicketTco == other.TicketTco &&
                    DateCreation == other.DateCreation &&
-                   completename == other.completename &&
-                   level == other.level &&
-                   ancestors_cache == other.ancestors_cache &&
-                   sons_cache == other.sons_cache &&
-                   address == other.address &&
-                   postcode == other.postcode &&
-                   town == other.town &&
-                   state == other.state &&
-                   country == other.country &&
-                   building == other.building &&
-                   room == other.room &&
-                   latitude == other.latitude &&
-                   longitude == other.longitude;
+                   CompleteName == other.CompleteName &&
+                   Level == other.Level &&
+                   CacheAncestors == other.CacheAncestors &&
+                   CacheSons == other.CacheSons &&
+                   Address == other.Address &&
+                   Postcode == other.Postcode &&
+                   Town == other.Town &&
+                   State == other.State &&
+                   Country == other.Country &&
+                   Building == other.Building &&
+                   Room == other.Room &&
+                   Latitude == other.Latitude &&
+                   Longitude == other.Longitude;
 
         }
 
@@ -72,35 +101,35 @@ namespace GLPIDotNet_API.Dashboard.Administration
         {
             HashCode hash = new HashCode();
             hash.Add(Id);
-            hash.Add(IdEntities);
+            hash.Add(IdEntity);
             hash.Add(IsRecursive);
             hash.Add(Name);
             hash.Add(Comment);
-            hash.Add(IdLocations);
+            hash.Add(IdLocation);
             hash.Add(IdUsersTech);
             hash.Add(IdGroupsTech);
-            hash.Add(IdManufacturers);
+            hash.Add(IdManufacturer);
             hash.Add(IsDeleted);
             hash.Add(IsTemplate);
             hash.Add(TemplateName);
             hash.Add(DateMod);
-            hash.Add(IdUsers);
-            hash.Add(IdGroups);
+            hash.Add(IdUser);
+            hash.Add(IdGroup);
             hash.Add(TicketTco);
             hash.Add(DateCreation);
-            hash.Add(completename);
-            hash.Add(level);
-            hash.Add(ancestors_cache);
-            hash.Add(sons_cache);
-            hash.Add(address);
-            hash.Add(postcode);
-            hash.Add(town);
-            hash.Add(state);
-            hash.Add(country);
-            hash.Add(building);
-            hash.Add(room);
-            hash.Add(latitude);
-            hash.Add(longitude);
+            hash.Add(CompleteName);
+            hash.Add(Level);
+            hash.Add(CacheAncestors);
+            hash.Add(CacheSons);
+            hash.Add(Address);
+            hash.Add(Postcode);
+            hash.Add(Town);
+            hash.Add(State);
+            hash.Add(Country);
+            hash.Add(Building);
+            hash.Add(Room);
+            hash.Add(Latitude);
+            hash.Add(Longitude);
             return hash.ToHashCode();
         }
 

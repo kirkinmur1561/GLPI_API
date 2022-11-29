@@ -1,6 +1,6 @@
 ﻿using GLPIDotNet_API.Dashboard.Common;
 
-namespace GLPIDotNet_API.Dashboard.Administration
+namespace GLPIDotNet_API.Dashboard.Administration.Profile
 {
     public class Profile : Dashboard<Profile>
     {

@@ -32,20 +32,20 @@ namespace GLPIDotNet_API.Dashboard.Assets
         {
             HashCode hash = new HashCode();
             hash.Add(Id);
-            hash.Add(IdEntities);
+            hash.Add(IdEntity);
             hash.Add(IsRecursive);
             hash.Add(Name);
             hash.Add(Comment);
-            hash.Add(IdLocations);
+            hash.Add(IdLocation);
             hash.Add(IdUsersTech);
             hash.Add(IdGroupsTech);
-            hash.Add(IdManufacturers);
+            hash.Add(IdManufacturer);
             hash.Add(IsDeleted);
             hash.Add(IsTemplate);
             hash.Add(TemplateName);
             hash.Add(DateMod);
-            hash.Add(IdUsers);
-            hash.Add(IdGroups);
+            hash.Add(IdUser);
+            hash.Add(IdGroup);
             hash.Add(TicketTco);
             hash.Add(DateCreation);
             hash.Add(IdCartridge);
@@ -63,6 +63,13 @@ namespace GLPIDotNet_API.Dashboard.Assets
 
         public static bool operator !=(CartridgeItem left, CartridgeItem right) =>
             !(left == right);
+        
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            return obj.GetType() == GetType() && Equals((CartridgeItem)obj);
+        }
 
     }
 }

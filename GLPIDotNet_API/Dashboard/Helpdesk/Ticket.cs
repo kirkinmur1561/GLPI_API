@@ -7,7 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using GLPIDotNet_API.Attributes;
 using GLPIDotNet_API.Base;
+using GLPIDotNet_API.Base.GLPI;
+using GLPIDotNet_API.Base.Request;
 using GLPIDotNet_API.Dashboard.Administration;
+using GLPIDotNet_API.Dashboard.Administration.User;
 using GLPIDotNet_API.Dashboard.Common;
 using GLPIDotNet_API.Dashboard.Helpdesk.LinkTicket;
 using GLPIDotNet_API.Exception;
@@ -27,7 +30,7 @@ namespace GLPIDotNet_API.Dashboard.Helpdesk
 
         public Ticket(long idLocation,long idCategory,long idType)
         {
-            IdLocations = idLocation;
+            IdLocation = idLocation;
             ItilCategoriesId = idCategory;
             Type = idType;              
         }
@@ -171,10 +174,7 @@ namespace GLPIDotNet_API.Dashboard.Helpdesk
         public RequestType RequestType { get;  set; }
         
         [JsonIgnore]
-        public ITILCategory ITILCategory { get; set; }
-        
-        [JsonIgnore]
-        public Location Location { get; set; }
+        public ITILCategory ITILCategory { get; set; }        
         
         // [JsonIgnore]
         // public DocumentItem Document_Item { get; set; }
@@ -250,7 +250,7 @@ namespace GLPIDotNet_API.Dashboard.Helpdesk
         //         HttpResponseMessage response = null;
         //
         //
-        //         Request request = new Request(async () => await glpi.Client.GetAsync(endPoint, cancel),
+        //         ClientRequest request = new ClientRequest(async () => await glpi.Client.GetAsync(endPoint, cancel),
         //             a => response = a);
         //
         //         glpi.QueueRequest.Enqueue(request);
@@ -319,58 +319,58 @@ namespace GLPIDotNet_API.Dashboard.Helpdesk
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="glpi"></param>
+        /// <param name="glpiClientram>
         /// <param name="cancel"></param>
         /// <returns></returns>
         /// <exception cref="ExceptionCheck"></exception>
         /// <exception cref="Exception"></exception>
-        public async Task<string> GetDocumentItem(Glpi glpi,CancellationToken cancel = default)
-        {
-            if (Check(glpi)) throw new ExceptionCheck(glpi);
-            Link link = Links.FirstOrDefault(f => f.Rel == "TicketValidation");
-
-            if (link == null) throw new System.Exception("Object Link is null");
-            StringBuilder sb = new StringBuilder();
-            foreach (var item in Links.Skip(5))
-            {
-                HttpResponseMessage response = null;
-                Request request = new Request(async () => await glpi.Client.GetAsync($"{nameof(Ticket)}/{Id}/{item.Rel}", cancel), a => response = a);
-                glpi.QueueRequest.Enqueue(request);
-                while (response == null)
-                {
-                    if (cancel.IsCancellationRequested) cancel.ThrowIfCancellationRequested();
-                }
-
-                if (response.IsSuccessStatusCode) sb.Append(await response.Content.ReadAsStringAsync(cancel));
-                else
-                    throw new System.Exception(
-                        $"Status code:{response.StatusCode}\nContext:{response.Content.ReadAsStringAsync(cancel)}");
-            }
-
-            return sb.ToString();            
-        }
+        // public async Task<string> GetDocumentItem(IGlpiClient glpiClient,CancellationToken cancel = default)
+        // {
+        //     if (glpiClient.Checker()) throw new ExceptionCheck(glpiClient);
+        //     Link link = Links.FirstOrDefault(f => f.Rel == "TicketValidation");
+        //
+        //     if (link == null) throw new System.Exception("Object Link is null");
+        //     StringBuilder sb = new StringBuilder();
+        //     foreach (var item in Links.Skip(5))
+        //     {
+        //         HttpResponseMessage response = null;
+        //         ClientRequest clientRequest = new ClientRequest(async () => await glpiClient.Client.GetAsync($"{nameof(Ticket)}/{Id}/{item.Rel}", cancel), a => response = a);
+        //         glpiClient.QueueRequest.Enqueue(clientRequest);
+        //         while (response == null)
+        //         {
+        //             if (cancel.IsCancellationRequested) cancel.ThrowIfCancellationRequested();
+        //         }
+        //
+        //         if (response.IsSuccessStatusCode) sb.Append(await response.Content.ReadAsStringAsync(cancel));
+        //         else
+        //             throw new System.Exception(
+        //                 $"Status code:{response.StatusCode}\nContext:{response.Content.ReadAsStringAsync(cancel)}");
+        //     }
+        //
+        //     return sb.ToString();            
+        // }
 
         public override int GetHashCode()
         {
             HashCode hash = new HashCode();
             hash.Add(Id);
-            hash.Add(IdEntities);
+            hash.Add(IdEntity);
             hash.Add(IsRecursive);
             hash.Add(Name);
             hash.Add(Comment);
-            hash.Add(IdLocations);
+            hash.Add(IdLocation);
             hash.Add(IdUsersTech);
             hash.Add(IdGroupsTech);
-            hash.Add(IdManufacturers);
+            hash.Add(IdManufacturer);
             hash.Add(IsDeleted);
             hash.Add(IsTemplate);
             hash.Add(TemplateName);
             hash.Add(DateMod);
-            hash.Add(IdUsers);
-            hash.Add(IdGroups);
+            hash.Add(IdUser);
+            hash.Add(IdGroup);
             hash.Add(TicketTco);
             hash.Add(DateCreation);
-            hash.Add(IdGroups);
+            hash.Add(IdGroup);
             hash.Add(Date);
             hash.Add(CloseDate);
             hash.Add(SolveDate);

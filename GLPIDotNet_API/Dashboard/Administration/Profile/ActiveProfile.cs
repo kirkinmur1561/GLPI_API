@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
-using GLPIDotNet_API.Dashboard.Administration;
+﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
-namespace GLPIDotNet_API.Base
+
+namespace GLPIDotNet_API.Dashboard.Administration.Profile
 {
-    public class ActiveProfile
+    public class ActiveProfile:IEquatable<ActiveProfile>
     {
         [JsonProperty("id")]
         public string Id;
@@ -432,6 +433,26 @@ namespace GLPIDotNet_API.Base
         [JsonProperty("user")]
         public int User;
         [JsonProperty("entities")]
-        List<Entity> _entities;       
+        List<Entity> _entities;
+
+        public bool Equals(ActiveProfile other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Id == other.Id;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((ActiveProfile)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (Id != null ? Id.GetHashCode() : 0);
+        }
     }
 }

@@ -74,10 +74,7 @@ namespace GLPIDotNet_API.Dashboard.Assets.LinkComputer
         public object LastUp {get; set;}        
         
         [JsonIgnore]
-        public Computer Computer { get; set; }
-        
-        [JsonIgnore]
-        public Entity Entity { get; set; }
+        public Computer Computer { get; set; }       
 
         [JsonIgnore]
         public List<NetworkName> ListNetworkNames { get; set; } = new();

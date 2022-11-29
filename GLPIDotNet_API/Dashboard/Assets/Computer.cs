@@ -1,14 +1,13 @@
-﻿#nullable enable
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using GLPIDotNet_API.Base;
+using GLPIDotNet_API.Base.GLPI;
 using GLPIDotNet_API.Dashboard.Administration;
+using GLPIDotNet_API.Dashboard.Administration.User;
 using GLPIDotNet_API.Dashboard.Assets.LinkComputer;
 using GLPIDotNet_API.Dashboard.Helpdesk.LinkTicket;
 using IPAddress = GLPIDotNet_API.Dashboard.Assets.LinkComputer.IPAddress;
@@ -31,14 +30,8 @@ namespace GLPIDotNet_API.Dashboard.Assets
         public long? IdComputerTypes { get; set; }
 
         [JsonProperty("uuid")]
-        public string UUId { get; set; }
-        
-        [JsonIgnore]
-        public Entity Entity { get; set; }
-        
-        [JsonIgnore]
-        public Network Network { get; set; }        
-        
+        public string UUId { get; set; }       
+
         [JsonIgnore]
         public List<ItemTicket> Item_Ticket {get;set;} = new();
         
@@ -113,27 +106,14 @@ namespace GLPIDotNet_API.Dashboard.Assets
         
         [JsonIgnore]
         public ComputerType ComputerType {get;set;}
-        
-        [JsonIgnore]
-        public Manufacturer Manufacturer {get;set;}
-        
-        [JsonIgnore]
-        public User User {get;set;}        
+                 
         
         [JsonIgnore]
         public ReservationItem ReservationItem {get;set;}        
         
         [JsonIgnore]
-        public Infocom Infocom {get;set;}
-        
-        [JsonIgnore]
-        public Group Group {get;set;}
-        
-        [JsonIgnore]
-        public Location Location {get;set;}
-
-        [JsonIgnore] 
-        public List<NetworkName> NetworkNames { get; set; } = new();        
+        public Infocom Infocom {get;set;}        
+                   
 
         public override bool Equals(object obj)
         {
@@ -148,38 +128,6 @@ namespace GLPIDotNet_API.Dashboard.Assets
 
         public static bool operator !=(Computer left, Computer right) =>
             !(left == right);
-
-       
-        public override async Task LoadFromLinkAsync(Glpi glpi, IEnumerable<PropertyInfo> properties = null, bool? isIgnoreProperties = null,
-            CancellationToken cancel = default)
-        {
-            await base.LoadFromLinkAsync(glpi, properties, isIgnoreProperties, cancel);
-            
-            if (NetworkPort.Any())
-            {
-                for (var indexPort = 0; indexPort < NetworkPort.Count; indexPort++)
-                {
-                    var networkPort = NetworkPort[indexPort];
-                    List<NetworkName>? newNames =
-                        JsonConvert.DeserializeObject<List<NetworkName>>(
-                            await GetJsonFromUri(glpi,
-                                new Uri($"{glpi.Client.BaseAddress}NetworkPort/{networkPort.Id}/NetworkName"), cancel));
-
-                    if (newNames == null) continue;
-                    for (var indexName = 0; indexName < newNames.Count; indexName++)
-                    {
-                        var networkName = newNames[indexName];
-                        networkName.IpAddress =
-                            JsonConvert.DeserializeObject<IEnumerable<IPAddress>>(
-                                await GetJsonFromUri(glpi,
-                                    new Uri($"{glpi.Client.BaseAddress}NetworkName/{networkName.Id}/IPAddress"),
-                                    cancel));
-                        networkPort.ListNetworkNames.Add(networkName);
-                    }
-                }
-            } 
-        }
-
 
         public bool Equals(Computer other)
         {

@@ -41,6 +41,8 @@ namespace GLPIDotNet_API.Dashboard.Search
             ELink.OR => "OR",
             ELink.AND_NOT => "AND NOT",
             ELink.OR_NOT => "OR NOT",
+            ELink.Continue => "Continue",
+            _ => throw new ArgumentOutOfRangeException(nameof(eLink), eLink, null)
         };
 
         public short field { get; set; } = 0;

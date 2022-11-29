@@ -6,9 +6,11 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using GLPIDotNet_API.Attributes;
+using GLPIDotNet_API.Base.GLPI;
+using GLPIDotNet_API.Base.Request;
 using GLPIDotNet_API.Exception;
 
-namespace GLPIDotNet_API.Dashboard.Administration
+namespace GLPIDotNet_API.Dashboard.Administration.User
 {
     public class User:Dashboard<User>
     {
@@ -234,25 +236,17 @@ namespace GLPIDotNet_API.Dashboard.Administration
         public string Nickname{get;set;}
         
         [JsonIgnore]
-        public UserTitle UserTitle { get; set; }
-        
-        [JsonIgnore]
-        public Location Location { get; set; }
+        public UserTitle UserTitle { get; set; }        
         
         [JsonIgnore]
         public AuthLDAP AuthLDAP { get; set; }
         
         [JsonIgnore]
-        public UserCategory UserCategory { get; set; }
-        
+        public UserCategory UserCategory { get; set; }        
+               
         [JsonIgnore]
-        public Entity Entity { get; set; }
+        public Profile.Profile Profile { get; set; }        
         
-        [JsonIgnore]
-        public Profile Profile { get; set; }
-        
-        [JsonIgnore]
-        public Group Group { get; set; }
         
         //[JsonIgnore]
         //public Document_Item Document_Item { get; set; }       
@@ -261,28 +255,87 @@ namespace GLPIDotNet_API.Dashboard.Administration
         /// Получить изображение пользователя
         /// </summary>
         /// <exception cref="Exception"></exception>
-        public async Task GetPicture(Glpi glpi, CancellationToken cancel = default)
-        {
-            if (Check(glpi)) throw new ExceptionCheck(glpi);
-            if (Id == null) throw new System.Exception("Id is null");
-
-            HttpResponseMessage response = null;
-            Request request = new Request(async () => await glpi.Client.GetAsync($"User/{Id}/Picture", cancel), a => response = a);
-
-            glpi.QueueRequest.Enqueue(request);
-
-            while (response == null)
-            {
-                if (cancel.IsCancellationRequested)
-                {
-                    cancel.ThrowIfCancellationRequested();
-                }
-            }
-
-            if (response.IsSuccessStatusCode) return;
-            throw new System.Exception($"status code:{response.StatusCode} content:{await response.Content.ReadAsStringAsync(cancel)}");
-        }
-
+        // public async Task GetPicture(IGlpiClient glpiClient, CancellationToken cancel = default,int? timeOutRequest = 200)
+        // {
+        //     if (glpiClient.Checker()) throw new ExceptionCheck(glpiClient);
+        //     if (Id == null) throw new System.Exception("Id is null");
+        //
+        //     HttpResponseMessage response = null;
+        //     ClientRequest clientRequest = new ClientRequest(async () => await glpiClient.Client.GetAsync($"User/{Id}/Picture", cancel), a => response = a);
+        //
+        //     glpiClient.QueueRequest.Enqueue(clientRequest);
+        //
+        //     if (timeOutRequest != null)
+        //     {
+        //         int timeOut = timeOutRequest > 0 ? (int)timeOutRequest : 200;
+        //         while (response == null)
+        //         {
+        //             await Task.Delay(timeOut, cancel);
+        //             if (cancel.IsCancellationRequested)
+        //             {
+        //                 cancel.ThrowIfCancellationRequested();
+        //             }
+        //         }
+        //     }
+        //     else
+        //     {
+        //         while (response == null)
+        //         {                    
+        //             if (cancel.IsCancellationRequested)
+        //             {
+        //                 cancel.ThrowIfCancellationRequested();
+        //             }
+        //         }
+        //     }
+        //
+        //     if (response.IsSuccessStatusCode) return;
+        //     throw new System.Exception($"status code:{response.StatusCode} content:{await response.Content.ReadAsStringAsync(cancel)}");
+        // }
+        //
+        //
+        // /// <summary>
+        // /// Получить изображение пользователя
+        // /// </summary>
+        // /// <exception cref="Exception"></exception>
+        // public async Task GetPicture(IGlpiClient glpiMulti, IGlpiClient glpiClient, CancellationToken cancel = default,int? timeOutRequest = 200)
+        // {
+        //     if(glpiMulti.Checker()) throw new ExceptionCheck(glpiClient);
+        //     if (glpiClient.Checker()) throw new ExceptionCheck(glpiClient);
+        //     if (Id == null) throw new System.Exception("Id is null");
+        //
+        //     HttpResponseMessage response = null;
+        //     MultiRequest multiRequest =
+        //         new MultiRequest(async () => await glpiClient.Client.GetAsync($"User/{Id}/Picture", cancel),
+        //             a => response = a, glpiClient);
+        //
+        //     glpiMulti.QueueRequest.Enqueue(multiRequest);
+        //
+        //     if (timeOutRequest != null)
+        //     {
+        //         int timeOut = timeOutRequest > 0 ? (int)timeOutRequest : 200;
+        //         while (response == null)
+        //         {
+        //             await Task.Delay(timeOut, cancel);
+        //             if (cancel.IsCancellationRequested)
+        //             {
+        //                 cancel.ThrowIfCancellationRequested();
+        //             }
+        //         }
+        //     }
+        //     else
+        //     {
+        //         while (response == null)
+        //         {                    
+        //             if (cancel.IsCancellationRequested)
+        //             {
+        //                 cancel.ThrowIfCancellationRequested();
+        //             }
+        //         }
+        //     }            
+        //
+        //     if (response.IsSuccessStatusCode) return;
+        //     throw new System.Exception($"status code:{response.StatusCode} content:{await response.Content.ReadAsStringAsync(cancel)}");
+        // }
         
     }
 }

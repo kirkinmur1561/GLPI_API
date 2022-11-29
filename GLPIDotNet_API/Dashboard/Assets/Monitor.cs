@@ -52,20 +52,20 @@ namespace GLPIDotNet_API.Dashboard.Assets
         {
             return other != null &&
                    Id == other.Id &&
-                   IdEntities == other.IdEntities &&
+                   IdEntity == other.IdEntity &&
                    IsRecursive == other.IsRecursive &&
                    Name == other.Name &&
                    Comment == other.Comment &&
-                   IdLocations == other.IdLocations &&
+                   IdLocation == other.IdLocation &&
                    IdUsersTech == other.IdUsersTech &&
                    IdGroupsTech == other.IdGroupsTech &&
-                   IdManufacturers == other.IdManufacturers &&
+                   IdManufacturer == other.IdManufacturer &&
                    IsDeleted == other.IsDeleted &&
                    IsTemplate == other.IsTemplate &&
                    TemplateName == other.TemplateName &&
                    DateMod == other.DateMod &&
-                   IdUsers == other.IdUsers &&
-                   IdGroups == other.IdGroups &&
+                   IdUser == other.IdUser &&
+                   IdGroup == other.IdGroup &&
                    TicketTco == other.TicketTco &&
                    DateCreation == other.DateCreation &&
                    Contact == other.Contact &&
@@ -92,20 +92,20 @@ namespace GLPIDotNet_API.Dashboard.Assets
         {
             HashCode hash = new HashCode();
             hash.Add(Id);
-            hash.Add(IdEntities);
+            hash.Add(IdEntity);
             hash.Add(IsRecursive);
             hash.Add(Name);
             hash.Add(Comment);
-            hash.Add(IdLocations);
+            hash.Add(IdLocation);
             hash.Add(IdUsersTech);
             hash.Add(IdGroupsTech);
-            hash.Add(IdManufacturers);
+            hash.Add(IdManufacturer);
             hash.Add(IsDeleted);
             hash.Add(IsTemplate);
             hash.Add(TemplateName);
             hash.Add(DateMod);
-            hash.Add(IdUsers);
-            hash.Add(IdGroups);
+            hash.Add(IdUser);
+            hash.Add(IdGroup);
             hash.Add(TicketTco);
             hash.Add(DateCreation);
 
